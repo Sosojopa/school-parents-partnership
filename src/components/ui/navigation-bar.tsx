@@ -2,63 +2,111 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const NavigationBar = () => {
-  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  const navItems = [
-    { name: "Главная", path: "/" },
-    { name: "О проекте", path: "/about" },
-    { name: "Регламент общения", path: "/rules" },
-    { name: "Каналы связи", path: "/channels" },
-    { name: "Цифровой этикет", path: "/etiquette" },
-    { name: "Вопросы и ответы", path: "/faq" },
-    { name: "Обратная связь", path: "/feedback" },
-  ];
+  const location = useLocation();
+
+  const isActiveLink = (path: string) => {
+    return location.pathname === path;
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
+  const navLinks = [
+    { path: "/", label: "Главная" },
+    { path: "/about", label: "О проекте" },
+    { path: "/rules", label: "Регламент" },
+    { path: "/channels", label: "Каналы связи" },
+    { path: "/etiquette", label: "Цифровой этикет" },
+    { path: "/faq", label: "Вопросы и ответы" },
+    { path: "/feedback", label: "Обратная связь" },
+  ];
+
   return (
-    <nav className="bg-white shadow-sm py-3 px-4 md:px-8 sticky top-0 z-50">
-      <div className="container mx-auto flex flex-col md:flex-row md:items-center justify-between">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl font-semibold text-primary">
-            Школа и родители: цифровое партнёрство
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
+            <img src="/logo-b.svg" alt="Логотип" className="h-8 w-8" />
+            <span className="font-semibold hidden md:block">Школа и родители</span>
           </Link>
-          <button 
-            className="md:hidden" 
-            onClick={toggleMenu}
-            aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
-          >
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
         </div>
-        
-        <div className={`md:flex flex-wrap items-center gap-1 md:gap-2 ${isMenuOpen ? 'flex flex-col pt-4' : 'hidden'}`}>
-          {navItems.map((item) => (
-            <Link 
-              key={item.path} 
-              to={item.path}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                location.pathname === item.path
-                  ? "bg-primary text-primary-foreground"
-                  : "text-gray-700 hover:bg-accent hover:text-accent-foreground"
+
+        {/* Десктопное меню */}
+        <nav className="hidden md:flex gap-6">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActiveLink(link.path) ? "text-primary" : "text-muted-foreground"
               }`}
-              onClick={() => setIsMenuOpen(false)}
             >
-              {item.name}
+              {link.label}
             </Link>
           ))}
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <Link to="/register">
+            <Button variant="outline" size="sm" className="hidden md:flex">
+              Регистрация
+            </Button>
+          </Link>
+          <Button size="sm" className="hidden md:flex">Вход</Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={toggleMenu}
+            aria-label="Открыть меню"
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
       </div>
-    </nav>
+
+      {/* Мобильное меню */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 top-16 z-50 bg-background pt-2 md:hidden">
+          <div className="container space-y-4 pb-6">
+            <nav className="flex flex-col space-y-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`text-sm font-medium transition-colors hover:text-primary p-2 rounded-md ${
+                    isActiveLink(link.path)
+                      ? "bg-muted text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                  onClick={closeMenu}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="flex flex-col gap-2 pt-4 border-t">
+              <Link to="/register" onClick={closeMenu}>
+                <Button variant="outline" className="w-full">
+                  Регистрация
+                </Button>
+              </Link>
+              <Button className="w-full">Вход</Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 
