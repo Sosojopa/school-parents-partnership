@@ -1,35 +1,56 @@
 
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-secondary py-8">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-6 md:mb-0">
-            <h3 className="text-lg font-semibold mb-2">Школа и родители: цифровое партнёрство</h3>
-            <p className="text-muted-foreground">© {new Date().getFullYear()} Все права защищены</p>
+    <footer className="bg-muted py-8 px-4">
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Школа и родители</h3>
+            <p className="text-sm text-muted-foreground">
+              Проект по созданию эффективной системы цифровой коммуникации между школой и родителями
+            </p>
           </div>
           
-          <div className="space-y-4">
-            <p className="text-center md:text-right text-sm text-muted-foreground">
-              Нам важно ваше мнение о проекте
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Навигация</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/" className="hover:text-primary transition-colors">Главная</Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-primary transition-colors">О проекте</Link>
+              </li>
+              <li>
+                <Link to="/rules" className="hover:text-primary transition-colors">Регламент общения</Link>
+              </li>
+              <li>
+                <Link to="/feedback" className="hover:text-primary transition-colors">Обратная связь</Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Контакты</h3>
+            <p className="text-sm text-muted-foreground mb-2">
+              Если у вас есть вопросы или предложения, пожалуйста, свяжитесь с нами:
             </p>
-            <div className="flex justify-center md:justify-end">
-              <Button 
-                variant="outline" 
-                onClick={() => window.open("https://forms.google.com/feedback", "_blank")}
+            <p className="text-sm">
+              <a 
+                href="mailto:school@example.com" 
+                className="text-primary hover:underline"
               >
-                Обратная связь
-              </Button>
-            </div>
+                school@example.com
+              </a>
+            </p>
           </div>
         </div>
         
-        <div className="mt-8 pt-6 border-t border-border">
-          <p className="text-sm text-center text-muted-foreground">
-            Контакт администрации: admin@school-parents.ru | +7 (XXX) XXX-XX-XX
-          </p>
+        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <p>© {currentYear} Школа и родители: цифровое партнёрство. Все права защищены.</p>
         </div>
       </div>
     </footer>
