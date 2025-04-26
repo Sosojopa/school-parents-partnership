@@ -35,7 +35,7 @@ const NavigationBar = () => {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
-            <span className="font-semibold">Школа и родители</span>
+            <span className="font-semibold text-primary">Школа и родители: цифровое партнёрство</span>
           </Link>
         </div>
 
