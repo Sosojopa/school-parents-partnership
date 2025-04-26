@@ -60,7 +60,9 @@ const NavigationBar = () => {
               Регистрация
             </Button>
           </Link>
-          <Button size="sm" className="hidden md:flex">Вход</Button>
+          <Link to="/login">
+            <Button size="sm" className="hidden md:flex">Вход</Button>
+          </Link>
           
           <Button
             variant="ghost"
@@ -100,7 +102,9 @@ const NavigationBar = () => {
                   Регистрация
                 </Button>
               </Link>
-              <Button className="w-full">Вход</Button>
+              <Link to="/login" onClick={closeMenu}>
+                <Button className="w-full">Вход</Button>
+              </Link>
             </div>
           </div>
         </div>
