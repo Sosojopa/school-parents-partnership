@@ -1,11 +1,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
-import { MessageSquareText, BookOpen, Mail, Video, AlertTriangle, ExternalLink } from "lucide-react";
+import { MessageSquareText, BookOpen, Mail, Video, AlertTriangle } from "lucide-react";
 
 const CommunicationChannels = () => {
   const channelTypes = [
@@ -20,8 +19,6 @@ const CommunicationChannels = () => {
         "Избегайте отправки сообщений вне рабочего времени",
         "Личные вопросы задавайте в приватных сообщениях, а не в общей группе"
       ],
-      actionLink: "#",
-      actionText: "Правила общения в группе",
       badge: "Быстрые сообщения"
     },
     {
@@ -35,8 +32,6 @@ const CommunicationChannels = () => {
         "Следите за актуальным расписанием и домашними заданиями",
         "Используйте встроенную систему сообщений для общения с педагогами"
       ],
-      actionLink: "#",
-      actionText: "Видео-инструкция по входу",
       badge: "Официальный портал"
     },
     {
@@ -50,8 +45,6 @@ const CommunicationChannels = () => {
         "Ожидайте ответа в течение 24 рабочих часов",
         "Всегда прикрепляйте необходимые документы в формате PDF или DOC"
       ],
-      actionLink: "#",
-      actionText: "Справочник контактов педагогов",
       badge: "Официальная переписка"
     },
     {
@@ -65,33 +58,7 @@ const CommunicationChannels = () => {
         "Подготовьте вопросы заранее для эффективного использования времени",
         "Проверьте свое оборудование перед важными встречами"
       ],
-      actionLink: "#",
-      actionText: "Расписание онлайн-встреч",
       badge: "Видеоконференции"
-    }
-  ];
-
-  const upcomingMeetings = [
-    {
-      title: "Родительское собрание 5 класс",
-      date: "28 апреля 2025",
-      time: "18:00",
-      platform: "Zoom",
-      link: "#",
-    },
-    {
-      title: "Консультация по итоговым работам",
-      date: "4 мая 2025",
-      time: "19:00",
-      platform: "Google Meet",
-      link: "#",
-    },
-    {
-      title: "Собрание родительского комитета",
-      date: "10 мая 2025",
-      time: "18:30",
-      platform: "Zoom",
-      link: "#",
     }
   ];
 
@@ -132,52 +99,9 @@ const CommunicationChannels = () => {
                     </li>
                   ))}
                 </ul>
-                <a 
-                  href={channel.actionLink} 
-                  className="inline-flex items-center text-sm text-primary hover:underline"
-                >
-                  {channel.actionText}
-                  <ExternalLink className="ml-1 h-4 w-4" />
-                </a>
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-center">Запланированные онлайн-встречи</h2>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[300px]">Событие</TableHead>
-                  <TableHead>Дата</TableHead>
-                  <TableHead>Время</TableHead>
-                  <TableHead>Платформа</TableHead>
-                  <TableHead className="text-right">Ссылка</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {upcomingMeetings.map((meeting, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{meeting.title}</TableCell>
-                    <TableCell>{meeting.date}</TableCell>
-                    <TableCell>{meeting.time}</TableCell>
-                    <TableCell>{meeting.platform}</TableCell>
-                    <TableCell className="text-right">
-                      <a 
-                        href={meeting.link} 
-                        className="text-primary hover:underline inline-flex items-center"
-                      >
-                        Подключиться
-                        <ExternalLink className="ml-1 h-4 w-4" />
-                      </a>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
         </div>
 
         <Alert className="max-w-3xl mx-auto">
