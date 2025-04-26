@@ -35,8 +35,7 @@ const NavigationBar = () => {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
-            <img src="/logo-b.svg" alt="Логотип" className="h-8 w-8" />
-            <span className="font-semibold hidden md:block">Школа и родители</span>
+            <span className="font-semibold">Школа и родители</span>
           </Link>
         </div>
 
