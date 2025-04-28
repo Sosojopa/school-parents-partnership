@@ -1,28 +1,35 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageSquare, Clock, User } from "lucide-react";
+import { ArrowLeft, MessageSquare, Clock, User, School, Filter, Settings } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Тип для обращения
 interface FeedbackMessage {
   id: string;
   date: string;
+  timestamp: string;
   category: string;
   status: "pending" | "answered" | "closed";
   subject: string;
   message: string;
+  isAdmin?: boolean;
 }
 
 const FeedbackHistory = () => {
   const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState<FeedbackMessage[]>([]);
+  const [filteredFeedbacks, setFilteredFeedbacks] = useState<FeedbackMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
     // Имитация загрузки данных
@@ -38,14 +45,38 @@ const FeedbackHistory = () => {
     // Имитация получения данных с сервера
     setTimeout(() => {
       // В реальном приложении здесь был бы API-запрос
+      const now = new Date();
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
       const mockFeedbacks: FeedbackMessage[] = [
         {
           id: "f-" + Date.now(),
-          date: "28 апреля 2025",
+          date: format(now, "d MMMM yyyy 'в' HH:mm", { locale: ru }),
+          timestamp: now.toISOString(),
           category: "Родитель",
           status: "pending",
           subject: "Вопрос по цифровым коммуникациям",
           message: "Хотелось бы уточнить, как настроить получение уведомлений только по важным событиям класса, без лишних сообщений."
+        },
+        {
+          id: "f-" + (Date.now() - 100000),
+          date: format(yesterday, "d MMMM yyyy 'в' HH:mm", { locale: ru }),
+          timestamp: yesterday.toISOString(),
+          category: "Администратор",
+          status: "answered",
+          subject: "Важное объявление о родительском собрании",
+          message: "Уважаемые родители, информируем вас о переносе родительского собрания с 15 мая на 20 мая. Просим принять к сведению.",
+          isAdmin: true
+        },
+        {
+          id: "f-" + (Date.now() - 200000),
+          date: format(new Date(now.setDate(now.getDate() - 3)), "d MMMM yyyy 'в' HH:mm", { locale: ru }),
+          timestamp: new Date(now.setDate(now.getDate() - 3)).toISOString(),
+          category: "Педагог",
+          status: "closed",
+          subject: "Информация о летнем лагере",
+          message: "Добрый день! Прошу обратить внимание на сроки подачи заявлений для летнего лагеря. Все документы необходимо подать до 10 июня."
         }
       ];
       
@@ -53,10 +84,34 @@ const FeedbackHistory = () => {
       const savedFeedbacks = localStorage.getItem("userFeedbacks");
       const parsedFeedbacks = savedFeedbacks ? JSON.parse(savedFeedbacks) : [];
       
-      setFeedbacks([...parsedFeedbacks, ...mockFeedbacks]);
+      const allFeedbacks = [...parsedFeedbacks, ...mockFeedbacks];
+      setFeedbacks(allFeedbacks);
+      setFilteredFeedbacks(allFeedbacks);
       setIsLoading(false);
     }, 1000);
   }, [navigate]);
+
+  // Фильтрация отзывов по категории
+  useEffect(() => {
+    if (filter === "all") {
+      setFilteredFeedbacks(feedbacks);
+    } else {
+      setFilteredFeedbacks(feedbacks.filter(feedback => {
+        switch (filter) {
+          case "parent":
+            return feedback.category === "Родитель";
+          case "teacher":
+            return feedback.category === "Педагог";
+          case "admin":
+            return feedback.category === "Администратор";
+          case "other":
+            return !["Родитель", "Педагог", "Администратор"].includes(feedback.category);
+          default:
+            return true;
+        }
+      }));
+    }
+  }, [filter, feedbacks]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -68,6 +123,19 @@ const FeedbackHistory = () => {
         return <Badge variant="outline" className="bg-gray-100 text-gray-800">Закрыто</Badge>;
       default:
         return <Badge variant="outline">Неизвестно</Badge>;
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case "Родитель":
+        return <User className="h-3 w-3 mx-1" />;
+      case "Педагог":
+        return <School className="h-3 w-3 mx-1" />;
+      case "Администратор":
+        return <Settings className="h-3 w-3 mx-1" />;
+      default:
+        return <User className="h-3 w-3 mx-1" />;
     }
   };
 
@@ -93,14 +161,43 @@ const FeedbackHistory = () => {
             </Button>
           </div>
           
+          {!isLoading && (
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 p-4 bg-muted/40 rounded-lg">
+              <div className="mb-4 sm:mb-0">
+                <span className="font-medium">Всего обращений:</span>{" "}
+                <Badge variant="secondary" className="ml-1 text-sm">{feedbacks.length}</Badge>
+              </div>
+              
+              <div className="flex items-center">
+                <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="mr-2 text-sm text-muted-foreground">Фильтр по роли:</span>
+                <Select value={filter} onValueChange={setFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Все категории" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все категории</SelectItem>
+                    <SelectItem value="parent">Родители</SelectItem>
+                    <SelectItem value="teacher">Педагоги</SelectItem>
+                    <SelectItem value="admin">Администраторы</SelectItem>
+                    <SelectItem value="other">Другие</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          
           {isLoading ? (
             <div className="py-20 text-center">
               <p className="text-muted-foreground">Загрузка сообщений...</p>
             </div>
-          ) : feedbacks.length > 0 ? (
+          ) : filteredFeedbacks.length > 0 ? (
             <div className="space-y-4">
-              {feedbacks.map((feedback) => (
-                <Card key={feedback.id} className="overflow-hidden">
+              {filteredFeedbacks.map((feedback) => (
+                <Card 
+                  key={feedback.id} 
+                  className={`overflow-hidden ${feedback.isAdmin ? 'bg-amber-50' : ''}`}
+                >
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div>
@@ -110,7 +207,7 @@ const FeedbackHistory = () => {
                         </CardTitle>
                         <CardDescription className="flex items-center mt-1">
                           <Clock className="h-3 w-3 mr-1" /> {feedback.date} • 
-                          <User className="h-3 w-3 mx-1" /> {feedback.category}
+                          {getCategoryIcon(feedback.category)} {feedback.category}
                         </CardDescription>
                       </div>
                       <div>
@@ -119,7 +216,7 @@ const FeedbackHistory = () => {
                     </div>
                   </CardHeader>
                   <Separator />
-                  <CardContent className="pt-4">
+                  <CardContent className={`pt-4 ${feedback.isAdmin ? 'bg-amber-50/50' : ''}`}>
                     <p className="whitespace-pre-line">{feedback.message}</p>
                     
                     {feedback.status === "answered" && (

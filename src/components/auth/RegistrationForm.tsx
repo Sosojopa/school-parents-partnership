@@ -2,31 +2,29 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registrationSchema, RegistrationFormValues } from "./FormSchema";
+import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserPlus } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { registrationSchema, RegistrationFormValues } from "./FormSchema";
 import PasswordField from "./PasswordField";
 import TermsCheckbox from "./TermsCheckbox";
 import RoleSelector from "./RoleSelector";
 
-interface RegistrationFormProps {
-  onRegisterSuccess: (email: string) => void;
-}
-
-const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
+const RegistrationForm = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
       name: "",
       email: "",
-      role: "parent", // По умолчанию - родитель
       password: "",
-      confirmPassword: "",
+      role: "parent",
       acceptTerms: false,
     },
   });
@@ -34,29 +32,32 @@ const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
   const onSubmit = (values: RegistrationFormValues) => {
     setIsLoading(true);
     
-    // Имитация запроса к серверу
+    // В реальном приложении здесь был бы вызов API для регистрации
     setTimeout(() => {
-      console.log("Registration form submitted:", values);
+      console.log("Form values:", values);
       
-      // Сохраняем состояние авторизации и данные пользователя
+      // Сохраняем данные в localStorage (для демонстрации)
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userName", values.name);
       localStorage.setItem("userEmail", values.email);
+      localStorage.setItem("userName", values.name);
       localStorage.setItem("userRole", values.role);
+      localStorage.setItem("userJoinedDate", new Date().toISOString());
       
       setIsLoading(false);
-      
-      // Передаем email в родительский компонент для отображения успешной регистрации
-      onRegisterSuccess(values.email);
+      navigate("/register/success");
     }, 1500);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Создание аккаунта</CardTitle>
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl font-bold">Создать аккаунт</CardTitle>
         <CardDescription>
-          Введите ваши данные для регистрации в системе
+          Введите свои данные для регистрации
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -69,7 +70,7 @@ const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
                 <FormItem>
                   <FormLabel>Имя</FormLabel>
                   <FormControl>
-                    <Input placeholder="Иван Иванов" {...field} />
+                    <Input placeholder="Введите ваше имя" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -83,54 +84,38 @@ const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="example@mail.ru" 
-                      type="email" 
-                      autoComplete="email"
-                      {...field} 
-                    />
+                    <Input placeholder="email@example.com" type="email" autoComplete="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             
+            <PasswordField 
+              control={form.control} 
+              showPassword={showPassword} 
+              toggleVisibility={togglePasswordVisibility}
+            />
+            
             <RoleSelector control={form.control} />
-            
-            <PasswordField
-              control={form.control}
-              name="password"
-              label="Пароль"
-              placeholder="••••••••"
-              autoComplete="new-password"
-            />
-            
-            <PasswordField
-              control={form.control}
-              name="confirmPassword"
-              label="Подтверждение пароля"
-              placeholder="••••••••"
-              autoComplete="new-password"
-            />
             
             <TermsCheckbox control={form.control} />
             
-            <Button 
-              type="submit" 
-              className="w-full mt-2" 
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                "Регистрация..."
-              ) : (
-                <>
-                  <UserPlus className="mr-2 h-4 w-4" /> Зарегистрироваться
-                </>
-              )}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Регистрация..." : "Зарегистрироваться"}
             </Button>
           </form>
         </Form>
       </CardContent>
+      <CardFooter className="flex justify-center">
+        <Button 
+          variant="link" 
+          className="px-0" 
+          onClick={() => navigate("/login")}
+        >
+          Уже есть аккаунт? Войти
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

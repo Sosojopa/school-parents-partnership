@@ -1,13 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { LogOut, User, Settings, MessageSquare, School } from "lucide-react";
+import { LogOut, User, Settings, MessageSquare, School, Clock } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -16,7 +18,8 @@ const Profile = () => {
     name: "Пользователь",
     email: "user@example.com",
     role: "parent",
-    joined: "Апрель 2025"
+    joined: "Апрель 2025",
+    joinedDate: new Date().toISOString()
   });
 
   // В реальном приложении здесь будет проверка авторизации
@@ -31,12 +34,17 @@ const Profile = () => {
       const storedName = localStorage.getItem("userName");
       const storedEmail = localStorage.getItem("userEmail");
       const storedRole = localStorage.getItem("userRole");
+      const storedJoinedDate = localStorage.getItem("userJoinedDate");
       
       setUserData(prev => ({
         ...prev,
         name: storedName || prev.name,
         email: storedEmail || prev.email,
-        role: storedRole || prev.role
+        role: storedRole || prev.role,
+        joinedDate: storedJoinedDate || new Date().toISOString(),
+        joined: storedJoinedDate 
+          ? format(new Date(storedJoinedDate), "d MMMM yyyy 'в' HH:mm", { locale: ru })
+          : format(new Date(), "d MMMM yyyy 'в' HH:mm", { locale: ru })
       }));
     }
   }, [navigate]);
@@ -64,6 +72,8 @@ const Profile = () => {
         return "Родитель";
       case "teacher":
         return "Педагог";
+      case "admin":
+        return "Администратор";
       default:
         return "Пользователь";
     }
@@ -71,9 +81,9 @@ const Profile = () => {
 
   // Иконка роли
   const RoleIcon = () => {
-    return userData.role === "teacher" ? 
-      <School className="h-5 w-5" /> : 
-      <User className="h-5 w-5" />;
+    if (userData.role === "teacher") return <School className="h-5 w-5" />;
+    if (userData.role === "admin") return <Settings className="h-5 w-5" />;
+    return <User className="h-5 w-5" />;
   };
 
   return (
@@ -127,7 +137,10 @@ const Profile = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Дата регистрации</h3>
-                        <p className="text-base">{userData.joined}</p>
+                        <p className="text-base flex items-center gap-1">
+                          <Clock className="h-4 w-4 text-muted-foreground" /> 
+                          {userData.joined}
+                        </p>
                       </div>
                     </div>
                     
