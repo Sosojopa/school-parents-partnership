@@ -1,8 +1,11 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
 import { useToast } from "@/components/ui/use-toast";
+import { ArrowRight, History } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Импорт компонентов обратной связи
 import FeedbackHeader from "@/components/feedback/FeedbackHeader";
@@ -42,8 +45,29 @@ const Feedback = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Здесь обычно отправляются данные на сервер
+    // В реальном приложении здесь был бы API-запрос для отправки на сервер
     console.log("Form submitted:", formData, "Rating:", communicationRating[0]);
+    
+    // Сохраняем сообщение в локальное хранилище (в реальном приложении будет API)
+    const message = {
+      id: `f-${Date.now()}`,
+      date: new Date().toLocaleDateString("ru-RU", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }),
+      category: formData.category || "Не указано",
+      status: "pending",
+      subject: "Обратная связь по работе системы",
+      message: `${formData.likes ? `Что нравится: ${formData.likes}\n\n` : ""}${formData.improvements ? `Предложения по улучшению: ${formData.improvements}\n\n` : ""}${formData.comment ? `Дополнительно: ${formData.comment}` : ""}`
+    };
+    
+    const savedFeedbacks = localStorage.getItem("userFeedbacks");
+    const feedbacks = savedFeedbacks ? JSON.parse(savedFeedbacks) : [];
+    localStorage.setItem("userFeedbacks", JSON.stringify([message, ...feedbacks]));
+    
+    // Имитация отправки на email
+    console.log(`Отправка на email: karramba881@gmail.com`, message);
     
     toast({
       title: "Форма отправлена",
@@ -107,6 +131,17 @@ const Feedback = () => {
           )}
           
           <ContactInfo />
+          
+          {/* Кнопка для перехода к истории обращений */}
+          <div className="mt-8 text-center">
+            <Link to="/feedback-history">
+              <Button variant="outline" className="flex items-center mx-auto">
+                <History className="mr-2 h-4 w-4" />
+                История обращений
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </main>
       

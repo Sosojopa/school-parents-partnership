@@ -2,19 +2,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { registrationSchema, RegistrationFormValues } from "./FormSchema";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useToast } from "@/components/ui/use-toast";
-import { formSchema, FormValues } from "./FormSchema";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserPlus } from "lucide-react";
 import PasswordField from "./PasswordField";
 import TermsCheckbox from "./TermsCheckbox";
 
@@ -23,107 +16,116 @@ interface RegistrationFormProps {
 }
 
 const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<RegistrationFormValues>({
+    resolver: zodResolver(registrationSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      terms: false,
+      acceptTerms: false,
     },
   });
 
-  const onSubmit = async (values: FormValues) => {
-    setIsSubmitting(true);
+  const onSubmit = (values: RegistrationFormValues) => {
+    setIsLoading(true);
     
-    try {
-      // Симуляция задержки API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+    // Имитация запроса к серверу
+    setTimeout(() => {
+      console.log("Registration form submitted:", values);
       
-      // Здесь должен быть реальный API-запрос для регистрации
-      console.log("Отправка данных регистрации:", values);
+      // Сохраняем состояние авторизации (в реальном приложении это делал бы сервер)
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userEmail", values.email);
       
-      // Вызываем колбэк успешной регистрации
+      setIsLoading(false);
+      
+      // Передаем email в родительский компонент для отображения успешной регистрации
       onRegisterSuccess(values.email);
-    } catch (error) {
-      toast({
-        title: "Ошибка регистрации",
-        description: "Не удалось зарегистрировать пользователя. Пожалуйста, попробуйте снова.",
-        variant: "destructive",
-      });
-      console.error("Ошибка регистрации:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    }, 1500);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Имя</FormLabel>
-              <FormControl>
-                <Input placeholder="Иван Петров" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="example@mail.ru" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <PasswordField 
-          form={form} 
-          name="password" 
-          label="Пароль" 
-          placeholder="Минимум 8 символов" 
-        />
-        
-        <PasswordField 
-          form={form} 
-          name="confirmPassword" 
-          label="Подтверждение пароля" 
-          placeholder="Повторите пароль" 
-        />
-        
-        <TermsCheckbox form={form} />
-        
-        <Button 
-          type="submit" 
-          className="w-full" 
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Регистрация...
-            </>
-          ) : (
-            "Зарегистрироваться"
-          )}
-        </Button>
-      </form>
-    </Form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Создание аккаунта</CardTitle>
+        <CardDescription>
+          Введите ваши данные для регистрации в системе
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Имя</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Иван Иванов" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="example@mail.ru" 
+                      type="email" 
+                      autoComplete="email"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <PasswordField
+              control={form.control}
+              name="password"
+              label="Пароль"
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+            
+            <PasswordField
+              control={form.control}
+              name="confirmPassword"
+              label="Подтверждение пароля"
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+            
+            <TermsCheckbox control={form.control} />
+            
+            <Button 
+              type="submit" 
+              className="w-full mt-2" 
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                "Регистрация..."
+              ) : (
+                <>
+                  <UserPlus className="mr-2 h-4 w-4" /> Зарегистрироваться
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
 
