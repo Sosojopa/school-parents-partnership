@@ -7,7 +7,7 @@ import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageSquare, Clock, User, School, Filter, Settings } from "lucide-react";
+import { ArrowLeft, MessageSquare, Clock, User, School, Filter, Settings, Star } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,6 +21,8 @@ interface FeedbackMessage {
   status: "pending" | "answered" | "closed";
   subject: string;
   message: string;
+  rating?: number;
+  senderName?: string;
   isAdmin?: boolean;
 }
 
@@ -42,44 +44,36 @@ const FeedbackHistory = () => {
       return;
     }
     
-    // Имитация получения данных с сервера
-    setTimeout(() => {
-      // В реальном приложении здесь был бы API-запрос
+    // Получение текущего имени пользователя
+    const currentUser = localStorage.getItem("userName") || "";
+    
+    // Получение сохраненных сообщений из локального хранилища
+    const savedFeedbacks = localStorage.getItem("userFeedbacks");
+    let parsedFeedbacks = savedFeedbacks ? JSON.parse(savedFeedbacks) : [];
+    
+    // Если нет сохраненных отзывов, создаем один пример отзыва
+    if (parsedFeedbacks.length === 0) {
       const now = new Date();
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
       
-      const mockFeedbacks: FeedbackMessage[] = [
-        {
-          id: "f-" + Date.now(),
-          date: format(now, "d MMMM yyyy 'в' HH:mm", { locale: ru }),
-          timestamp: now.toISOString(),
-          category: "Родитель",
-          status: "pending",
-          subject: "Вопрос по цифровым коммуникациям",
-          message: "Хотелось бы уточнить, как настроить получение уведомлений только по важным событиям класса, без лишних сообщений."
-        },
-        {
-          id: "f-" + (Date.now() - 100000),
-          date: format(yesterday, "d MMMM yyyy 'в' HH:mm", { locale: ru }),
-          timestamp: yesterday.toISOString(),
-          category: "Администратор",
-          status: "answered",
-          subject: "Важное объявление о родительском собрании",
-          message: "Уважаемые родители, информируем вас о переносе родительского собрания с 15 мая на 20 мая. Просим принять к сведению.",
-          isAdmin: true
-        }
-      ];
+      parsedFeedbacks = [{
+        id: "f-" + Date.now(),
+        date: format(now, "d MMMM yyyy 'в' HH:mm", { locale: ru }),
+        timestamp: now.toISOString(),
+        category: "Родитель",
+        status: "pending",
+        subject: "Вопрос по цифровым коммуникациям",
+        message: "Хотелось бы уточнить, как настроить получение уведомлений только по важным событиям класса, без лишних сообщений.",
+        senderName: currentUser,
+        rating: 7
+      }];
       
-      // Получение сохраненных сообщений из локального хранилища
-      const savedFeedbacks = localStorage.getItem("userFeedbacks");
-      const parsedFeedbacks = savedFeedbacks ? JSON.parse(savedFeedbacks) : [];
-      
-      const allFeedbacks = [...parsedFeedbacks, ...mockFeedbacks];
-      setFeedbacks(allFeedbacks);
-      setFilteredFeedbacks(allFeedbacks);
-      setIsLoading(false);
-    }, 1000);
+      // Сохраняем пример отзыва, если нет других
+      localStorage.setItem("userFeedbacks", JSON.stringify(parsedFeedbacks));
+    }
+    
+    setFeedbacks(parsedFeedbacks);
+    setFilteredFeedbacks(parsedFeedbacks);
+    setIsLoading(false);
   }, [navigate]);
 
   // Фильтрация отзывов по категории
@@ -196,9 +190,30 @@ const FeedbackHistory = () => {
                           <MessageSquare className="h-4 w-4 mr-2" />
                           {feedback.subject}
                         </CardTitle>
-                        <CardDescription className="flex items-center mt-1">
-                          <Clock className="h-3 w-3 mr-1" /> {feedback.date} • 
-                          {getCategoryIcon(feedback.category)} {feedback.category}
+                        <CardDescription className="flex flex-wrap items-center mt-1 gap-1">
+                          <div className="flex items-center">
+                            <Clock className="h-3 w-3 mr-1" /> {feedback.date}
+                          </div>
+                          <span className="mx-1">•</span>
+                          <div className="flex items-center">
+                            {getCategoryIcon(feedback.category)} {feedback.category}
+                          </div>
+                          {feedback.senderName && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <div className="flex items-center">
+                                <User className="h-3 w-3 mr-1" /> {feedback.senderName}
+                              </div>
+                            </>
+                          )}
+                          {feedback.rating && (
+                            <>
+                              <span className="mx-1">•</span>
+                              <div className="flex items-center">
+                                <Star className="h-3 w-3 mr-1 text-amber-500" /> {feedback.rating}/10
+                              </div>
+                            </>
+                          )}
                         </CardDescription>
                       </div>
                       <div>

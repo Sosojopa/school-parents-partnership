@@ -71,7 +71,9 @@ const Feedback = () => {
       status: "pending",
       subject: "Отзыв о системе коммуникации",
       message: `Оценка коммуникации: ${communicationRating[0]}/10\n\nЧто нравится: ${formData.likes}\n\nПредложения по улучшению: ${formData.improvements}\n\nДополнительные комментарии: ${formData.comment}`,
-      isAdmin: formData.category === "Администратор"
+      isAdmin: formData.category === "Администратор",
+      senderName: formData.name || localStorage.getItem("userName") || undefined,
+      rating: communicationRating[0]
     };
     
     // Добавляем новый отзыв в массив
