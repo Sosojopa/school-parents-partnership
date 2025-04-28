@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { UserPlus } from "lucide-react";
 import PasswordField from "./PasswordField";
 import TermsCheckbox from "./TermsCheckbox";
+import RoleSelector from "./RoleSelector";
 
 interface RegistrationFormProps {
   onRegisterSuccess: (email: string) => void;
@@ -23,6 +24,7 @@ const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
     defaultValues: {
       name: "",
       email: "",
+      role: "parent", // По умолчанию - родитель
       password: "",
       confirmPassword: "",
       acceptTerms: false,
@@ -36,10 +38,11 @@ const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
     setTimeout(() => {
       console.log("Registration form submitted:", values);
       
-      // Сохраняем состояние авторизации (в реальном приложении это делал бы сервер)
+      // Сохраняем состояние авторизации и данные пользователя
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userName", values.name);
       localStorage.setItem("userEmail", values.email);
+      localStorage.setItem("userRole", values.role);
       
       setIsLoading(false);
       
@@ -91,6 +94,8 @@ const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
                 </FormItem>
               )}
             />
+            
+            <RoleSelector control={form.control} />
             
             <PasswordField
               control={form.control}

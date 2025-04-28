@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { LogOut, User, Settings, MessageSquare } from "lucide-react";
+import { LogOut, User, Settings, MessageSquare, School } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const Profile = () => {
   const [userData, setUserData] = useState({
     name: "Пользователь",
     email: "user@example.com",
-    role: "Родитель",
+    role: "parent",
     joined: "Апрель 2025"
   });
 
@@ -27,14 +27,17 @@ const Profile = () => {
     if (!isLoggedIn) {
       navigate("/login");
     } else {
-      // Здесь бы загружались данные пользователя с сервера
+      // Загрузка данных пользователя из localStorage
+      const storedName = localStorage.getItem("userName");
       const storedEmail = localStorage.getItem("userEmail");
-      if (storedEmail) {
-        setUserData(prev => ({
-          ...prev,
-          email: storedEmail
-        }));
-      }
+      const storedRole = localStorage.getItem("userRole");
+      
+      setUserData(prev => ({
+        ...prev,
+        name: storedName || prev.name,
+        email: storedEmail || prev.email,
+        role: storedRole || prev.role
+      }));
     }
   }, [navigate]);
 
@@ -42,6 +45,8 @@ const Profile = () => {
     // Очистка данных авторизации
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userRole");
     
     toast({
       title: "Выход выполнен",
@@ -50,6 +55,25 @@ const Profile = () => {
     });
     
     navigate("/");
+  };
+
+  // Функция для отображения роли на русском языке
+  const getRoleDisplay = (role: string) => {
+    switch (role) {
+      case "parent":
+        return "Родитель";
+      case "teacher":
+        return "Педагог";
+      default:
+        return "Пользователь";
+    }
+  };
+
+  // Иконка роли
+  const RoleIcon = () => {
+    return userData.role === "teacher" ? 
+      <School className="h-5 w-5" /> : 
+      <User className="h-5 w-5" />;
   };
 
   return (
@@ -74,7 +98,7 @@ const Profile = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" /> 
+                    <RoleIcon /> 
                     Информация о пользователе
                   </CardTitle>
                   <CardDescription>
@@ -97,7 +121,9 @@ const Profile = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Роль</h3>
-                        <p className="text-base">{userData.role}</p>
+                        <p className="text-base flex items-center gap-2">
+                          <RoleIcon /> {getRoleDisplay(userData.role)}
+                        </p>
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Дата регистрации</h3>

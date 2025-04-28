@@ -9,6 +9,9 @@ export const registrationSchema = z.object({
   email: z.string().email({
     message: "Введите корректный email",
   }),
+  role: z.enum(["parent", "teacher"], {
+    required_error: "Выберите вашу роль",
+  }),
   password: z.string().min(8, {
     message: "Пароль должен содержать минимум 8 символов",
   }),
