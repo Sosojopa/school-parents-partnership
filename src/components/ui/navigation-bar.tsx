@@ -79,7 +79,7 @@ const NavigationBar = () => {
       {/* Мобильное меню */}
       {isMenuOpen && (
         <div className="fixed inset-0 top-16 z-50 bg-background pt-2 md:hidden">
-          <div className="container space-y-4 pb-6">
+          <div className="container space-y-4 pb-6 bg-background shadow-lg">
             <nav className="flex flex-col space-y-4">
               {navLinks.map((link) => (
                 <Link
