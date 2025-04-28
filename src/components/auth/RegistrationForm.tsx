@@ -38,6 +38,7 @@ const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
       
       // Сохраняем состояние авторизации (в реальном приложении это делал бы сервер)
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userName", values.name);
       localStorage.setItem("userEmail", values.email);
       
       setIsLoading(false);

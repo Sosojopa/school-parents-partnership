@@ -1,26 +1,26 @@
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { Control } from "react-hook-form";
+import { RegistrationFormValues } from "./FormSchema";
 import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { UseFormReturn } from "react-hook-form";
-import { FormValues } from "./FormSchema";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 
 interface TermsCheckboxProps {
-  form: UseFormReturn<FormValues>;
+  control: Control<RegistrationFormValues>;
 }
 
-const TermsCheckbox = ({ form }: TermsCheckboxProps) => {
+const TermsCheckbox = ({ control }: TermsCheckboxProps) => {
   return (
     <FormField
-      control={form.control}
-      name="terms"
+      control={control}
+      name="acceptTerms"
       render={({ field }) => (
-        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
+        <FormItem className="flex flex-row items-start space-x-2 space-y-0 mt-1">
           <FormControl>
             <Checkbox
               checked={field.value}
@@ -28,9 +28,16 @@ const TermsCheckbox = ({ form }: TermsCheckboxProps) => {
             />
           </FormControl>
           <div className="space-y-1 leading-none">
-            <FormLabel className="text-sm font-normal">
-              Я принимаю условия использования и политику конфиденциальности
-            </FormLabel>
+            <label
+              htmlFor="terms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Я принимаю{" "}
+              <Link to="/rules" className="text-primary hover:underline">
+                правила и условия
+              </Link>{" "}
+              использования платформы
+            </label>
             <FormMessage />
           </div>
         </FormItem>

@@ -10,21 +10,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { UseFormReturn } from "react-hook-form";
-import { FormValues } from "./FormSchema";
+import { Control } from "react-hook-form";
+import { RegistrationFormValues } from "./FormSchema";
 
 interface PasswordFieldProps {
-  form: UseFormReturn<FormValues>;
+  control: Control<RegistrationFormValues>;
   name: "password" | "confirmPassword";
   label: string;
   placeholder: string;
+  autoComplete?: string;
 }
 
 const PasswordField = ({
-  form,
+  control,
   name,
   label,
   placeholder,
+  autoComplete,
 }: PasswordFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -34,7 +36,7 @@ const PasswordField = ({
 
   return (
     <FormField
-      control={form.control}
+      control={control}
       name={name}
       render={({ field }) => (
         <FormItem>
@@ -44,6 +46,7 @@ const PasswordField = ({
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder={placeholder}
+                autoComplete={autoComplete}
                 {...field}
               />
               <Button

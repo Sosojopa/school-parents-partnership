@@ -1,7 +1,7 @@
 
 import { z } from "zod";
 
-// Определение схемы валидации
+// Определение схемы валидации для регистрации
 export const registrationSchema = z.object({
   name: z.string().min(2, {
     message: "Имя должно содержать минимум 2 символа",
@@ -22,6 +22,19 @@ export const registrationSchema = z.object({
 });
 
 export type RegistrationFormValues = z.infer<typeof registrationSchema>;
+
+// Определение схемы валидации для входа
+export const loginSchema = z.object({
+  email: z.string().email({
+    message: "Введите корректный email",
+  }),
+  password: z.string().min(1, {
+    message: "Введите пароль",
+  }),
+  rememberMe: z.boolean().optional(),
+});
+
+export type LoginFormValues = z.infer<typeof loginSchema>;
 
 // Схема для обратной связи
 export const feedbackSchema = z.object({
