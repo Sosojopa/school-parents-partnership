@@ -68,15 +68,6 @@ const FeedbackHistory = () => {
           subject: "Важное объявление о родительском собрании",
           message: "Уважаемые родители, информируем вас о переносе родительского собрания с 15 мая на 20 мая. Просим принять к сведению.",
           isAdmin: true
-        },
-        {
-          id: "f-" + (Date.now() - 200000),
-          date: format(new Date(now.setDate(now.getDate() - 3)), "d MMMM yyyy 'в' HH:mm", { locale: ru }),
-          timestamp: new Date(now.setDate(now.getDate() - 3)).toISOString(),
-          category: "Педагог",
-          status: "closed",
-          subject: "Информация о летнем лагере",
-          message: "Добрый день! Прошу обратить внимание на сроки подачи заявлений для летнего лагеря. Все документы необходимо подать до 10 июня."
         }
       ];
       

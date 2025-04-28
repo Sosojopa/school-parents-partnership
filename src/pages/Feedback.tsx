@@ -9,6 +9,8 @@ import FeedbackForm from "@/components/feedback/FeedbackForm";
 import InfoSidebar from "@/components/feedback/InfoSidebar";
 import SuccessCard from "@/components/feedback/SuccessCard";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { MessageSquare } from "lucide-react";
 
 interface FormDataType {
   name: string;
@@ -133,9 +135,33 @@ const Feedback = () => {
                   <InfoSidebar onViewHistory={handleViewHistory} />
                 </div>
               </div>
+              
+              <div className="mt-12 text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={handleViewHistory}
+                  className="flex items-center mx-auto"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" /> 
+                  Просмотреть историю отзывов
+                </Button>
+              </div>
             </>
           ) : (
-            <SuccessCard onReset={handleReset} />
+            <>
+              <SuccessCard onReset={handleReset} />
+              
+              <div className="mt-8 text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={handleViewHistory}
+                  className="flex items-center mx-auto"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" /> 
+                  Просмотреть историю отзывов
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </main>
