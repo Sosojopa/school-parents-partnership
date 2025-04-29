@@ -14,7 +14,7 @@ const FeedbackTextarea: React.FC<FeedbackTextareaProps> = ({ form }) => {
       name="feedback"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Что бы вы хотели улучшить?</FormLabel>
+          <FormLabel>Что бы вы хотели улучшить? <span className="text-muted-foreground text-sm">(необязательно)</span></FormLabel>
           <FormControl>
             <Textarea
               placeholder="Поделитесь вашим мнением о том, как мы можем улучшить коммуникацию..."

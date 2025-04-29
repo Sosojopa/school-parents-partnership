@@ -25,7 +25,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Введите корректный email" }).optional(),
   phone: z.string().optional(),
   rating: z.number().min(1).max(10),
-  feedback: z.string().min(3, { message: "Пожалуйста, оставьте свой отзыв" }),
+  feedback: z.string().optional() // Поле необязательное
 });
 
 type FeedbackFormValues = z.infer<typeof formSchema>;
@@ -63,7 +63,7 @@ const Feedback = () => {
       rating: data.rating,
       email: data.email,
       phone: data.phone,
-      improveSuggestion: data.feedback,
+      improveSuggestion: data.feedback || "", // Обработка пустого поля
     };
     
     // Добавление отзыва в localStorage

@@ -9,6 +9,8 @@ export interface Feedback {
   improveSuggestion?: string;
   additionalComments?: string;
   userType?: string;
+  email?: string;
+  phone?: string;
 }
 
 // Предопределенные отзывы
@@ -112,25 +114,43 @@ export const predefinedFeedbacks: Feedback[] = [
   }
 ];
 
+// Функция для инициализации отзывов из предопределенного списка, если они отсутствуют
+export const initializePredefinedFeedbacks = () => {
+  try {
+    // Получаем текущие отзывы из localStorage
+    const feedbacksString = localStorage.getItem("feedbacks");
+    let storedFeedbacks = feedbacksString ? JSON.parse(feedbacksString) : [];
+    
+    // Проверяем, есть ли уже предопределенные отзывы в localStorage
+    const hasPreFeedbacks = storedFeedbacks.some((f: Feedback) => f.id.startsWith('pre-'));
+    
+    // Если предопределенных отзывов нет, добавляем их
+    if (!hasPreFeedbacks) {
+      storedFeedbacks = [...predefinedFeedbacks, ...storedFeedbacks];
+      localStorage.setItem("feedbacks", JSON.stringify(storedFeedbacks));
+      console.log("Predefined feedbacks initialized in localStorage");
+    }
+  } catch (error) {
+    console.error("Ошибка при инициализации отзывов:", error);
+  }
+};
+
 // Функция для получения всех отзывов
 export const getAllFeedbacks = (): Feedback[] => {
   try {
-    // Получаем пользовательские отзывы из localStorage
+    // Инициализируем предопределенные отзывы, если они отсутствуют
+    initializePredefinedFeedbacks();
+    
+    // Получаем все отзывы из localStorage
     const feedbacksString = localStorage.getItem("feedbacks");
     const storedFeedbacks = feedbacksString ? JSON.parse(feedbacksString) : [];
     
-    // Объединяем предопределенные и пользовательские отзывы
-    const allFeedbacks = [...predefinedFeedbacks, ...storedFeedbacks];
-    
-    // Удаляем дубликаты по id
-    const uniqueFeedbacks = allFeedbacks.filter((feedback, index, self) => 
-      index === self.findIndex((f) => f.id === feedback.id)
+    // Сортируем отзывы по дате (от новых к старым)
+    storedFeedbacks.sort((a: Feedback, b: Feedback) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     
-    // Сортируем по дате (от новых к старым)
-    uniqueFeedbacks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    
-    return uniqueFeedbacks;
+    return storedFeedbacks;
   } catch (error) {
     console.error("Ошибка при получении отзывов:", error);
     return [];

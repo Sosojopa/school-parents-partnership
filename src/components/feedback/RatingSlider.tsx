@@ -1,25 +1,24 @@
 
 import React from "react";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 
 interface RatingSliderProps {
   form: any;
   label?: string;
+  value?: number[];
+  onChange?: (value: number[]) => void;
   min?: number;
   max?: number;
   step?: number;
-  value?: number[];
-  onChange?: (value: number[]) => void;
 }
 
-const RatingSlider: React.FC<RatingSliderProps> = ({
-  form,
+const RatingSlider: React.FC<RatingSliderProps> = ({ 
+  form, 
   label = "Оценка текущей коммуникации",
   min = 1,
   max = 10,
-  step = 1,
+  step = 1
 }) => {
   return (
     <FormField
@@ -28,27 +27,27 @@ const RatingSlider: React.FC<RatingSliderProps> = ({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <div className="space-y-2">
+          <div className="space-y-2">
+            <FormControl>
               <Slider
-                defaultValue={[field.value || 7]}
                 min={min}
                 max={max}
                 step={step}
-                onValueChange={(value) => field.onChange(value[0])}
-                className="mt-2"
+                value={[field.value || 7]}
+                onValueChange={(values) => field.onChange(values[0])}
+                className="py-4"
               />
-              <div className="flex justify-between text-sm text-muted-foreground mt-1">
-                <span>Не удовлетворен ({min})</span>
-                <span>Средне ({Math.floor((min + max) / 2)})</span>
-                <span>Очень доволен ({max})</span>
-              </div>
-              <div className="text-center font-medium text-xl mt-2">
-                {field.value || 7} из {max}
-              </div>
+            </FormControl>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Очень плохо ({min})</span>
+              <span>Нейтрально ({Math.floor((max - min) / 2) + min})</span>
+              <span>Отлично ({max})</span>
             </div>
-          </FormControl>
-          <FormMessage />
+            <div className="text-center font-semibold text-lg">
+              Ваша оценка: {field.value || 7}/{max}
+            </div>
+            <FormMessage />
+          </div>
         </FormItem>
       )}
     />

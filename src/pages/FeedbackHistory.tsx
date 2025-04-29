@@ -10,20 +10,28 @@ import {
   getCountsByType, 
   filterFeedbacksByType, 
   calculateAverageRating, 
-  type Feedback 
+  initializePredefinedFeedbacks
 } from "@/components/feedback/feedback-history/feedback-data";
 
 const FeedbackHistory = () => {
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [userFilter, setUserFilter] = useState<string>("all");
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [userFilter, setUserFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Инициализируем предопределенные отзывы при первой загрузке
+    initializePredefinedFeedbacks();
+    
     // Загружаем отзывы при монтировании компонента
     const loadFeedbacks = () => {
-      const allFeedbacks = getAllFeedbacks();
-      setFeedbacks(allFeedbacks);
-      setIsLoading(false);
+      try {
+        const allFeedbacks = getAllFeedbacks();
+        setFeedbacks(allFeedbacks);
+      } catch (error) {
+        console.error("Ошибка при загрузке отзывов:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     
     loadFeedbacks();
