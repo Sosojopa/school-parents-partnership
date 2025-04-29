@@ -82,7 +82,7 @@ const predefinedFeedbacks: Feedback[] = [
     additionalComments: "В перспективе можно организовать мини-курсы по цифровому этикету для родителей первоклассников.",
     userType: "Педагог"
   },
-  // Новые отзывы
+  // Добавленные новые отзывы
   {
     id: "pre-7",
     name: "Марина",
@@ -128,31 +128,36 @@ const FeedbackHistory = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Функция для получения всех отзывов из localStorage
+    const getAllFeedbacks = (): Feedback[] => {
+      try {
+        const feedbacksString = localStorage.getItem("feedbacks");
+        if (feedbacksString) {
+          return JSON.parse(feedbacksString);
+        }
+      } catch (error) {
+        console.error("Ошибка при получении отзывов:", error);
+      }
+      return [];
+    };
+    
     // Извлекаем пользовательские отзывы из localStorage
     const storedFeedbacks = getAllFeedbacks();
     
     // Объединяем предопределенные и пользовательские отзывы
     const allFeedbacks = [...predefinedFeedbacks, ...storedFeedbacks];
     
-    // Сортируем по дате (от новых к старым)
-    allFeedbacks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Удаляем дубликаты по id
+    const uniqueFeedbacks = allFeedbacks.filter((feedback, index, self) => 
+      index === self.findIndex((f) => f.id === feedback.id)
+    );
     
-    setFeedbacks(allFeedbacks);
+    // Сортируем по дате (от новых к старым)
+    uniqueFeedbacks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    setFeedbacks(uniqueFeedbacks);
     setIsLoading(false);
   }, []);
-
-  // Функция для получения всех отзывов из localStorage
-  const getAllFeedbacks = (): Feedback[] => {
-    try {
-      const feedbacksString = localStorage.getItem("feedbacks");
-      if (feedbacksString) {
-        return JSON.parse(feedbacksString);
-      }
-    } catch (error) {
-      console.error("Ошибка при получении отзывов:", error);
-    }
-    return [];
-  };
 
   // Фильтрация отзывов по типу пользователя
   const getFilteredFeedbacks = () => {

@@ -1,16 +1,22 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent } from "@/components/ui/card";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
 import FeedbackHeader from "@/components/feedback/FeedbackHeader";
 import InfoSidebar from "@/components/feedback/InfoSidebar";
-import FeedbackForm from "@/components/feedback/FeedbackForm";
 import SuccessCard from "@/components/feedback/SuccessCard";
+import { Form } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import UserTypeRadioGroup from "@/components/feedback/UserTypeRadioGroup";
+import ContactFields from "@/components/feedback/ContactFields";
+import RatingSlider from "@/components/feedback/RatingSlider";
+import FeedbackTextarea from "@/components/feedback/FeedbackTextarea";
+import { Button } from "@/components/ui/button";
+import { History } from "lucide-react";
 
 // Схема валидации для формы обратной связи
 const formSchema = z.object({
@@ -43,6 +49,8 @@ const Feedback = () => {
 
   // Обработчик успешной отправки формы
   const onSubmit = (data: FeedbackFormValues) => {
+    console.log("Form submitted with data:", data);
+    
     // Генерация уникального ID для отзыва
     const id = `feedback-${Date.now()}`;
     
@@ -64,6 +72,7 @@ const Feedback = () => {
       const feedbacks = existingFeedbacks ? JSON.parse(existingFeedbacks) : [];
       feedbacks.push(feedbackData);
       localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+      console.log("Feedback saved to localStorage:", feedbackData);
     } catch (error) {
       console.error("Ошибка при сохранении отзыва:", error);
     }
@@ -104,11 +113,34 @@ const Feedback = () => {
               // Форма обратной связи
               <Card>
                 <CardContent className="pt-6">
-                  <FeedbackForm 
-                    form={form} 
-                    onSubmit={onSubmit} 
-                    handleViewHistory={handleViewHistory}
-                  />
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      {/* Выбор роли пользователя */}
+                      <UserTypeRadioGroup form={form} />
+
+                      {/* Поля контактной информации */}
+                      <ContactFields form={form} />
+
+                      {/* Оценка текущей коммуникации */}
+                      <RatingSlider form={form} />
+
+                      {/* Поле для ввода отзыва */}
+                      <FeedbackTextarea form={form} />
+
+                      <div className="flex items-center justify-between pt-4">
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          onClick={handleViewHistory}
+                          className="flex items-center"
+                        >
+                          <History className="mr-2 h-4 w-4" />
+                          История отзывов
+                        </Button>
+                        <Button type="submit">Отправить отзыв</Button>
+                      </div>
+                    </form>
+                  </Form>
                 </CardContent>
               </Card>
             )}

@@ -1,39 +1,31 @@
 
 import React from "react";
-import { Label } from "@/components/ui/label";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 
 interface FeedbackTextareaProps {
-  id: string;
-  name: string;
-  label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  placeholder: string;
-  minHeight?: string;
+  form: any;
 }
 
-const FeedbackTextarea: React.FC<FeedbackTextareaProps> = ({
-  id,
-  name,
-  label,
-  value,
-  onChange,
-  placeholder,
-  minHeight = "100px",
-}) => {
+const FeedbackTextarea: React.FC<FeedbackTextareaProps> = ({ form }) => {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      <Textarea
-        id={id}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`resize-none min-h-[${minHeight}]`}
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name="feedback"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Что бы вы хотели улучшить?</FormLabel>
+          <FormControl>
+            <Textarea
+              placeholder="Поделитесь вашим мнением о том, как мы можем улучшить коммуникацию..."
+              className="resize-none min-h-[120px]"
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 

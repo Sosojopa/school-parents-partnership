@@ -1,73 +1,57 @@
 
 import React from "react";
-import { Label } from "@/components/ui/label";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 
 interface RatingSliderProps {
+  form: any;
   label?: string;
-  value?: number[];
-  onChange?: (value: number[]) => void;
   min?: number;
   max?: number;
   step?: number;
-  form?: any; // Для совместимости с предыдущим использованием
+  value?: number[];
+  onChange?: (value: number[]) => void;
 }
 
 const RatingSlider: React.FC<RatingSliderProps> = ({
-  label = "Оценка",
-  value = [7],
-  onChange = () => {},
+  form,
+  label = "Оценка текущей коммуникации",
   min = 1,
   max = 10,
   step = 1,
-  form,
 }) => {
-  // Если компонент вызван через form
-  if (form) {
-    const ratingValue = form.watch("rating") || 7;
-    
-    return (
-      <div className="space-y-2">
-        <Label htmlFor="rating">Оценка текущей коммуникации</Label>
-        <div className="flex items-center gap-4">
-          <Slider
-            id="rating"
-            min={1}
-            max={10}
-            step={1}
-            value={[ratingValue]}
-            onValueChange={(value) => form.setValue("rating", value[0])}
-            className="flex-1"
-          />
-          <span className="bg-primary/10 px-3 py-1 rounded-md font-medium text-primary min-w-10 text-center">
-            {ratingValue}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  // Безопасная обработка значения
-  const safeValue = Array.isArray(value) && value.length > 0 ? value : [7];
-  
   return (
-    <div className="space-y-2">
-      <Label htmlFor="communication-rating">{label}</Label>
-      <div className="flex items-center gap-4">
-        <Slider
-          id="communication-rating"
-          min={min}
-          max={max}
-          step={step}
-          value={safeValue}
-          onValueChange={onChange}
-          className="flex-1"
-        />
-        <span className="bg-primary/10 px-3 py-1 rounded-md font-medium text-primary min-w-10 text-center">
-          {safeValue[0]}
-        </span>
-      </div>
-    </div>
+    <FormField
+      control={form.control}
+      name="rating"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <div className="space-y-2">
+              <Slider
+                defaultValue={[field.value || 7]}
+                min={min}
+                max={max}
+                step={step}
+                onValueChange={(value) => field.onChange(value[0])}
+                className="mt-2"
+              />
+              <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                <span>Не удовлетворен ({min})</span>
+                <span>Средне ({Math.floor((min + max) / 2)})</span>
+                <span>Очень доволен ({max})</span>
+              </div>
+              <div className="text-center font-medium text-xl mt-2">
+                {field.value || 7} из {max}
+              </div>
+            </div>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 
