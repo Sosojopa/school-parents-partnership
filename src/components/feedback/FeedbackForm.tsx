@@ -19,9 +19,15 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
   onSubmit,
   handleViewHistory,
 }) => {
+  // Проверяем наличие функции onSubmit
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    form.handleSubmit(onSubmit)(e);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleFormSubmit} className="space-y-6">
         {/* Выбор роли пользователя */}
         <UserTypeRadioGroup form={form} />
 
@@ -29,7 +35,14 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({
         <ContactFields form={form} />
 
         {/* Оценка текущей коммуникации */}
-        <RatingSlider form={form} />
+        <RatingSlider 
+          label="Оценка текущей коммуникации"
+          value={[form.watch("rating") || 7]}
+          onChange={(value) => form.setValue("rating", value[0])}
+          min={1}
+          max={10}
+          step={1}
+        />
 
         {/* Поле для ввода отзыва */}
         <FeedbackTextarea form={form} />

@@ -15,7 +15,7 @@ interface Feedback {
   name: string;
   date: string;
   rating: number;
-  role: string;
+  role?: string;
   improveSuggestion?: string;
   additionalComments?: string;
   userType?: string;
@@ -81,6 +81,44 @@ const predefinedFeedbacks: Feedback[] = [
     improveSuggestion: "Разграничить темы для общения: что обсуждать в мессенджерах, а что через официальный электронный дневник.",
     additionalComments: "В перспективе можно организовать мини-курсы по цифровому этикету для родителей первоклассников.",
     userType: "Педагог"
+  },
+  // Новые отзывы
+  {
+    id: "pre-7",
+    name: "Марина",
+    date: "2025-04-28T11:12:00",
+    rating: 9,
+    role: "Родитель",
+    improveSuggestion: "Было бы удобно видеть шаблоны для самых частых обращений, например, о пропуске занятий.",
+    userType: "Родитель"
+  },
+  {
+    id: "pre-8",
+    name: "Алексей",
+    date: "2025-04-28T12:27:00",
+    rating: 7,
+    role: "Педагог",
+    improveSuggestion: "Упростить структуру сайта, чтобы родителям было легче ориентироваться.",
+    userType: "Педагог"
+  },
+  {
+    id: "pre-9",
+    name: "Наталья",
+    date: "2025-04-28T14:03:00",
+    rating: 8,
+    role: "Родитель",
+    improveSuggestion: "Хотелось бы получать небольшие отчёты о прогрессе ребёнка хотя бы раз в месяц.",
+    additionalComments: "В целом сайт удобный, особенно форма обратной связи и памятка по этикету.",
+    userType: "Родитель"
+  },
+  {
+    id: "pre-10",
+    name: "Иван",
+    date: "2025-04-28T15:56:00",
+    rating: 6,
+    role: "Педагог",
+    additionalComments: "Предлагаю проводить мини-вебинары для родителей, где можно сразу обсудить важные вопросы, а не писать всё в чат.",
+    userType: "Педагог"
   }
 ];
 
@@ -122,8 +160,8 @@ const FeedbackHistory = () => {
       return feedbacks;
     }
     return feedbacks.filter(feedback => 
-      feedback.userType?.toLowerCase() === userFilter.toLowerCase() || 
-      feedback.role?.toLowerCase() === userFilter.toLowerCase()
+      (feedback.userType?.toLowerCase() === userFilter.toLowerCase()) || 
+      (feedback.role?.toLowerCase() === userFilter.toLowerCase())
     );
   };
 
@@ -132,12 +170,10 @@ const FeedbackHistory = () => {
     const counts = {
       all: feedbacks.length,
       parent: feedbacks.filter(f => 
-        f.userType?.toLowerCase() === "родитель" || 
-        f.role?.toLowerCase() === "родитель"
+        (f.userType?.toLowerCase() === "родитель" || f.role?.toLowerCase() === "родитель")
       ).length,
       teacher: feedbacks.filter(f => 
-        f.userType?.toLowerCase() === "педагог" || 
-        f.role?.toLowerCase() === "педагог"
+        (f.userType?.toLowerCase() === "педагог" || f.role?.toLowerCase() === "педагог")
       ).length,
       other: feedbacks.filter(f => 
         (f.userType?.toLowerCase() !== "родитель" && 
@@ -153,7 +189,7 @@ const FeedbackHistory = () => {
   const counts = getCountsByType();
   const filteredFeedbacks = getFilteredFeedbacks();
   const averageRating = feedbacks.length > 0 
-    ? (feedbacks.reduce((sum, fb) => sum + fb.rating, 0) / feedbacks.length).toFixed(1) 
+    ? (feedbacks.reduce((sum, fb) => sum + (fb.rating || 0), 0) / feedbacks.length).toFixed(1) 
     : "N/A";
 
   // Функция для форматирования даты
@@ -180,6 +216,49 @@ const FeedbackHistory = () => {
         ))}
         <span className="ml-1 text-sm font-medium">({rating}/10)</span>
       </div>
+    );
+  };
+
+  const renderFeedbackCard = (feedback: Feedback) => {
+    const userType = feedback.userType || feedback.role || "Неизвестно";
+    const isParent = userType.toLowerCase() === "родитель";
+    
+    return (
+      <Card key={feedback.id} className="h-full">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-lg">{feedback.name}</CardTitle>
+              <CardDescription className="mt-1">
+                {formatDate(feedback.date)}
+              </CardDescription>
+            </div>
+            <Badge variant={isParent ? "default" : "secondary"}>
+              {userType}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <div className="font-medium text-sm mb-1">Оценка:</div>
+            {renderStars(feedback.rating)}
+          </div>
+          
+          {feedback.improveSuggestion && (
+            <div>
+              <div className="font-medium text-sm mb-1">Предложения по улучшению:</div>
+              <p className="text-sm">{feedback.improveSuggestion}</p>
+            </div>
+          )}
+          
+          {feedback.additionalComments && (
+            <div>
+              <div className="font-medium text-sm mb-1">Дополнительные комментарии:</div>
+              <p className="text-sm">{feedback.additionalComments}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     );
   };
 
@@ -244,43 +323,7 @@ const FeedbackHistory = () => {
               <TabsContent value="all" className="mt-0">
                 {filteredFeedbacks.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredFeedbacks.map(feedback => (
-                      <Card key={feedback.id} className="h-full">
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-lg">{feedback.name}</CardTitle>
-                              <CardDescription className="mt-1">
-                                {formatDate(feedback.date)}
-                              </CardDescription>
-                            </div>
-                            <Badge variant={feedback.userType?.toLowerCase() === "родитель" || feedback.role?.toLowerCase() === "родитель" ? "default" : "secondary"}>
-                              {feedback.userType || feedback.role || "Неизвестно"}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div>
-                            <div className="font-medium text-sm mb-1">Оценка:</div>
-                            {renderStars(feedback.rating)}
-                          </div>
-                          
-                          {feedback.improveSuggestion && (
-                            <div>
-                              <div className="font-medium text-sm mb-1">Предложения по улучшению:</div>
-                              <p className="text-sm">{feedback.improveSuggestion}</p>
-                            </div>
-                          )}
-                          
-                          {feedback.additionalComments && (
-                            <div>
-                              <div className="font-medium text-sm mb-1">Дополнительные комментарии:</div>
-                              <p className="text-sm">{feedback.additionalComments}</p>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
+                    {filteredFeedbacks.map(renderFeedbackCard)}
                   </div>
                 ) : (
                   <div className="text-center py-12">
@@ -290,16 +333,16 @@ const FeedbackHistory = () => {
               </TabsContent>
               
               <TabsContent value="родитель" className="mt-0">
-                {/* Контент такой же, как и в основной вкладке, отображается автоматически благодаря фильтрации */}
+                {/* Контент отображается автоматически благодаря фильтрации */}
               </TabsContent>
               
               <TabsContent value="педагог" className="mt-0">
-                {/* Контент такой же, как и в основной вкладке, отображается автоматически благодаря фильтрации */}
+                {/* Контент отображается автоматически благодаря фильтрации */}
               </TabsContent>
               
               {counts.other > 0 && (
                 <TabsContent value="other" className="mt-0">
-                  {/* Контент такой же, как и в основной вкладке, отображается автоматически благодаря фильтрации */}
+                  {/* Контент отображается автоматически благодаря фильтрации */}
                 </TabsContent>
               )}
             </Tabs>
