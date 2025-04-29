@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
@@ -26,6 +26,76 @@ interface FeedbackMessage {
   isAdmin?: boolean;
 }
 
+// Предопределенные отзывы
+const predefinedFeedbacks: FeedbackMessage[] = [
+  {
+    id: "f-20250425131400",
+    date: "25 апреля 2025 в 13:14",
+    timestamp: "2025-04-25T13:14:00",
+    category: "Родитель",
+    status: "pending",
+    subject: "Отзыв о системе коммуникации",
+    message: "Оценка коммуникации: 9/10\n\nЧто нравится: Хорошая система оповещений\n\nПредложения по улучшению: Хотелось бы получать напоминания о важных мероприятиях заранее.\n\nДополнительные комментарии: Всё очень удобно!",
+    rating: 9,
+    senderName: "Елена"
+  },
+  {
+    id: "f-20250426123400",
+    date: "26 апреля 2025 в 12:34",
+    timestamp: "2025-04-26T12:34:00",
+    category: "Педагог",
+    status: "pending",
+    subject: "Отзыв о системе коммуникации",
+    message: "Оценка коммуникации: 7/10\n\nЧто нравится: Удобный интерфейс\n\nПредложения по улучшению: Ввести чёткие временные рамки для ответов родителей на сообщения.\n\nДополнительные комментарии: Иногда родительские вопросы требуют отдельной консультации — хорошо бы предусмотреть возможность записи на видеовстречи через сайт.",
+    rating: 7,
+    senderName: "Дмитрий"
+  },
+  {
+    id: "f-20250426124100",
+    date: "26 апреля 2025 в 12:41",
+    timestamp: "2025-04-26T12:41:00",
+    category: "Родитель",
+    status: "pending",
+    subject: "Отзыв о системе коммуникации",
+    message: "Оценка коммуникации: 8/10\n\nЧто нравится: Интуитивно понятный интерфейс\n\nПредложения по улучшению: Добавить единое расписание консультаций классного руководителя.\n\nДополнительные комментарии: Очень нравится наличие памятки по цифровому этикету — теперь меньше недопонимания.",
+    rating: 8,
+    senderName: "Светлана"
+  },
+  {
+    id: "f-20250426130500",
+    date: "26 апреля 2025 в 13:05",
+    timestamp: "2025-04-26T13:05:00",
+    category: "Педагог",
+    status: "pending",
+    subject: "Отзыв о системе коммуникации",
+    message: "Оценка коммуникации: 6/10\n\nЧто нравится: Оперативность ответов\n\nПредложения по улучшению: Больше обучающих инструкций для родителей по использованию цифровых платформ.\n\nДополнительные комментарии: ",
+    rating: 6,
+    senderName: "Николай"
+  },
+  {
+    id: "f-20250427143300",
+    date: "27 апреля 2025 в 14:33",
+    timestamp: "2025-04-27T14:33:00",
+    category: "Родитель",
+    status: "pending",
+    subject: "Отзыв о системе коммуникации",
+    message: "Оценка коммуникации: 10/10\n\nЧто нравится: Всё очень хорошо организовано\n\nПредложения по улучшению: Всё устраивает, но возможно добавить быстрые шаблоны для обращения к учителям.\n\nДополнительные комментарии: Очень удобно, что теперь есть централизованный доступ ко всем каналам связи через один сайт!",
+    rating: 10,
+    senderName: "Анна"
+  },
+  {
+    id: "f-20250427145800",
+    date: "27 апреля 2025 в 14:58",
+    timestamp: "2025-04-27T14:58:00",
+    category: "Педагог",
+    status: "pending",
+    subject: "Отзыв о системе коммуникации",
+    message: "Оценка коммуникации: 8/10\n\nЧто нравится: Наличие четких правил\n\nПредложения по улучшению: Разграничить темы для общения: что обсуждать в мессенджерах, а что через официальный электронный дневник.\n\nДополнительные комментарии: В перспективе можно организовать мини-курсы по цифровому этикету для родителей первоклассников.",
+    rating: 8,
+    senderName: "Олег"
+  }
+];
+
 const FeedbackHistory = () => {
   const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState<FeedbackMessage[]>([]);
@@ -37,44 +107,32 @@ const FeedbackHistory = () => {
     // Имитация загрузки данных
     setIsLoading(true);
     
-    // Проверка авторизации (в реальном приложении)
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
-      navigate("/login");
-      return;
-    }
-    
-    // Получение текущего имени пользователя
-    const currentUser = localStorage.getItem("userName") || "";
-    
     // Получение сохраненных сообщений из локального хранилища
     const savedFeedbacks = localStorage.getItem("userFeedbacks");
     let parsedFeedbacks = savedFeedbacks ? JSON.parse(savedFeedbacks) : [];
     
-    // Если нет сохраненных отзывов, создаем один пример отзыва
-    if (parsedFeedbacks.length === 0) {
-      const now = new Date();
-      
-      parsedFeedbacks = [{
-        id: "f-" + Date.now(),
-        date: format(now, "d MMMM yyyy 'в' HH:mm", { locale: ru }),
-        timestamp: now.toISOString(),
-        category: "Родитель",
-        status: "pending",
-        subject: "Вопрос по цифровым коммуникациям",
-        message: "Хотелось бы уточнить, как настроить получение уведомлений только по важным событиям класса, без лишних сообщений.",
-        senderName: currentUser,
-        rating: 7
-      }];
-      
-      // Сохраняем пример отзыва, если нет других
-      localStorage.setItem("userFeedbacks", JSON.stringify(parsedFeedbacks));
-    }
+    // Объединяем сохраненные отзывы с предопределенными
+    const allFeedbacks = [...parsedFeedbacks, ...predefinedFeedbacks];
     
-    setFeedbacks(parsedFeedbacks);
-    setFilteredFeedbacks(parsedFeedbacks);
+    // Сортируем отзывы по дате (от новых к старым)
+    const sortedFeedbacks = allFeedbacks.sort((a, b) => {
+      // Если есть timestamp, используем его для сортировки
+      if (a.timestamp && b.timestamp) {
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      }
+      // Иначе используем id (который содержит временную метку)
+      return b.id.localeCompare(a.id);
+    });
+    
+    // Удаляем дубликаты по id
+    const uniqueFeedbacks = sortedFeedbacks.filter((feedback, index, self) =>
+      index === self.findIndex((f) => f.id === feedback.id)
+    );
+    
+    setFeedbacks(uniqueFeedbacks);
+    setFilteredFeedbacks(uniqueFeedbacks);
     setIsLoading(false);
-  }, [navigate]);
+  }, []);
 
   // Фильтрация отзывов по категории
   useEffect(() => {
@@ -124,6 +182,15 @@ const FeedbackHistory = () => {
     }
   };
 
+  // Расчет количества отзывов по категориям
+  const countByCategory = {
+    total: feedbacks.length,
+    parent: feedbacks.filter(f => f.category === "Родитель").length,
+    teacher: feedbacks.filter(f => f.category === "Педагог").length,
+    admin: feedbacks.filter(f => f.category === "Администратор").length,
+    other: feedbacks.filter(f => !["Родитель", "Педагог", "Администратор"].includes(f.category)).length
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <NavigationBar />
@@ -134,7 +201,7 @@ const FeedbackHistory = () => {
             <div>
               <h1 className="text-3xl font-bold">История обращений</h1>
               <p className="text-muted-foreground mt-1">
-                Все ваши отправленные сообщения и ответы на них
+                Все отправленные сообщения и ответы на них
               </p>
             </div>
             <Button 
@@ -147,15 +214,39 @@ const FeedbackHistory = () => {
           </div>
           
           {!isLoading && (
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 p-4 bg-muted/40 rounded-lg">
-              <div className="mb-4 sm:mb-0">
-                <span className="font-medium">Всего обращений:</span>{" "}
-                <Badge variant="secondary" className="ml-1 text-sm">{feedbacks.length}</Badge>
+            <div className="flex flex-col space-y-4 mb-8">
+              <div className="p-5 bg-muted/40 rounded-lg">
+                <h3 className="text-lg font-medium mb-3">Статистика обращений</h3>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
+                    <div className="text-2xl font-bold">{countByCategory.total}</div>
+                    <div className="text-xs text-muted-foreground">Всего</div>
+                  </div>
+                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
+                    <div className="text-2xl font-bold">{countByCategory.parent}</div>
+                    <div className="text-xs text-muted-foreground">От родителей</div>
+                  </div>
+                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
+                    <div className="text-2xl font-bold">{countByCategory.teacher}</div>
+                    <div className="text-xs text-muted-foreground">От педагогов</div>
+                  </div>
+                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
+                    <div className="text-2xl font-bold">{countByCategory.admin}</div>
+                    <div className="text-xs text-muted-foreground">От администрации</div>
+                  </div>
+                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
+                    <div className="text-2xl font-bold">{countByCategory.other}</div>
+                    <div className="text-xs text-muted-foreground">Другие</div>
+                  </div>
+                </div>
               </div>
               
-              <div className="flex items-center">
-                <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span className="mr-2 text-sm text-muted-foreground">Фильтр по роли:</span>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-muted/40 rounded-lg">
+                <div className="mb-4 sm:mb-0 flex items-center">
+                  <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span className="mr-2 text-sm text-muted-foreground">Фильтр по роли:</span>
+                </div>
+                
                 <Select value={filter} onValueChange={setFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Все категории" />
@@ -241,9 +332,9 @@ const FeedbackHistory = () => {
             <Card>
               <CardContent className="pt-6 pb-6 text-center">
                 <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground opacity-25 mb-4" />
-                <h3 className="text-lg font-medium mb-2">У вас пока нет отправленных сообщений</h3>
+                <h3 className="text-lg font-medium mb-2">Нет отзывов, соответствующих фильтру</h3>
                 <p className="text-muted-foreground mb-4">
-                  Когда вы отправите сообщение через форму обратной связи, оно появится здесь
+                  Попробуйте изменить параметры фильтрации или отправить новый отзыв
                 </p>
                 <Button onClick={() => navigate("/feedback")}>
                   Отправить обращение
