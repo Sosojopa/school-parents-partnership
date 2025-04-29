@@ -1,194 +1,186 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { format, parseISO } from "date-fns";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { Star } from "lucide-react";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageSquare, Clock, User, School, Filter, Settings, Star } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Тип для обращения
-interface FeedbackMessage {
+// Интерфейс для отзыва
+interface Feedback {
   id: string;
+  name: string;
   date: string;
-  timestamp: string;
-  category: string;
-  status: "pending" | "answered" | "closed";
-  subject: string;
-  message: string;
-  rating?: number;
-  senderName?: string;
-  isAdmin?: boolean;
+  rating: number;
+  role: string;
+  improveSuggestion?: string;
+  additionalComments?: string;
+  userType?: string;
 }
 
 // Предопределенные отзывы
-const predefinedFeedbacks: FeedbackMessage[] = [
+const predefinedFeedbacks: Feedback[] = [
   {
-    id: "f-20250425131400",
-    date: "25 апреля 2025 в 13:14",
-    timestamp: "2025-04-25T13:14:00",
-    category: "Родитель",
-    status: "pending",
-    subject: "Отзыв о системе коммуникации",
-    message: "Оценка коммуникации: 9/10\n\nЧто нравится: Хорошая система оповещений\n\nПредложения по улучшению: Хотелось бы получать напоминания о важных мероприятиях заранее.\n\nДополнительные комментарии: Всё очень удобно!",
+    id: "pre-1",
+    name: "Елена",
+    date: "2025-04-25T13:14:00",
     rating: 9,
-    senderName: "Елена"
+    role: "Родитель",
+    improveSuggestion: "Хотелось бы получать напоминания о важных мероприятиях заранее.",
+    additionalComments: "Всё очень удобно!",
+    userType: "Родитель"
   },
   {
-    id: "f-20250426123400",
-    date: "26 апреля 2025 в 12:34",
-    timestamp: "2025-04-26T12:34:00",
-    category: "Педагог",
-    status: "pending",
-    subject: "Отзыв о системе коммуникации",
-    message: "Оценка коммуникации: 7/10\n\nЧто нравится: Удобный интерфейс\n\nПредложения по улучшению: Ввести чёткие временные рамки для ответов родителей на сообщения.\n\nДополнительные комментарии: Иногда родительские вопросы требуют отдельной консультации — хорошо бы предусмотреть возможность записи на видеовстречи через сайт.",
+    id: "pre-2",
+    name: "Дмитрий",
+    date: "2025-04-26T12:34:00",
     rating: 7,
-    senderName: "Дмитрий"
+    role: "Педагог",
+    improveSuggestion: "Ввести чёткие временные рамки для ответов родителей на сообщения.",
+    additionalComments: "Иногда родительские вопросы требуют отдельной консультации — хорошо бы предусмотреть возможность записи на видеовстречи через сайт.",
+    userType: "Педагог"
   },
   {
-    id: "f-20250426124100",
-    date: "26 апреля 2025 в 12:41",
-    timestamp: "2025-04-26T12:41:00",
-    category: "Родитель",
-    status: "pending",
-    subject: "Отзыв о системе коммуникации",
-    message: "Оценка коммуникации: 8/10\n\nЧто нравится: Интуитивно понятный интерфейс\n\nПредложения по улучшению: Добавить единое расписание консультаций классного руководителя.\n\nДополнительные комментарии: Очень нравится наличие памятки по цифровому этикету — теперь меньше недопонимания.",
+    id: "pre-3",
+    name: "Светлана",
+    date: "2025-04-26T12:41:00",
     rating: 8,
-    senderName: "Светлана"
+    role: "Родитель",
+    improveSuggestion: "Добавить единое расписание консультаций классного руководителя.",
+    additionalComments: "Очень нравится наличие памятки по цифровому этикету — теперь меньше недопонимания.",
+    userType: "Родитель"
   },
   {
-    id: "f-20250426130500",
-    date: "26 апреля 2025 в 13:05",
-    timestamp: "2025-04-26T13:05:00",
-    category: "Педагог",
-    status: "pending",
-    subject: "Отзыв о системе коммуникации",
-    message: "Оценка коммуникации: 6/10\n\nЧто нравится: Оперативность ответов\n\nПредложения по улучшению: Больше обучающих инструкций для родителей по использованию цифровых платформ.\n\nДополнительные комментарии: ",
+    id: "pre-4",
+    name: "Николай",
+    date: "2025-04-26T13:05:00",
     rating: 6,
-    senderName: "Николай"
+    role: "Педагог",
+    improveSuggestion: "Больше обучающих инструкций для родителей по использованию цифровых платформ.",
+    userType: "Педагог"
   },
   {
-    id: "f-20250427143300",
-    date: "27 апреля 2025 в 14:33",
-    timestamp: "2025-04-27T14:33:00",
-    category: "Родитель",
-    status: "pending",
-    subject: "Отзыв о системе коммуникации",
-    message: "Оценка коммуникации: 10/10\n\nЧто нравится: Всё очень хорошо организовано\n\nПредложения по улучшению: Всё устраивает, но возможно добавить быстрые шаблоны для обращения к учителям.\n\nДополнительные комментарии: Очень удобно, что теперь есть централизованный доступ ко всем каналам связи через один сайт!",
+    id: "pre-5",
+    name: "Анна",
+    date: "2025-04-27T14:33:00",
     rating: 10,
-    senderName: "Анна"
+    role: "Родитель",
+    improveSuggestion: "Всё устраивает, но возможно добавить быстрые шаблоны для обращения к учителям.",
+    additionalComments: "Очень удобно, что теперь есть централизованный доступ ко всем каналам связи через один сайт!",
+    userType: "Родитель"
   },
   {
-    id: "f-20250427145800",
-    date: "27 апреля 2025 в 14:58",
-    timestamp: "2025-04-27T14:58:00",
-    category: "Педагог",
-    status: "pending",
-    subject: "Отзыв о системе коммуникации",
-    message: "Оценка коммуникации: 8/10\n\nЧто нравится: Наличие четких правил\n\nПредложения по улучшению: Разграничить темы для общения: что обсуждать в мессенджерах, а что через официальный электронный дневник.\n\nДополнительные комментарии: В перспективе можно организовать мини-курсы по цифровому этикету для родителей первоклассников.",
+    id: "pre-6",
+    name: "Олег",
+    date: "2025-04-27T14:58:00",
     rating: 8,
-    senderName: "Олег"
+    role: "Педагог",
+    improveSuggestion: "Разграничить темы для общения: что обсуждать в мессенджерах, а что через официальный электронный дневник.",
+    additionalComments: "В перспективе можно организовать мини-курсы по цифровому этикету для родителей первоклассников.",
+    userType: "Педагог"
   }
 ];
 
 const FeedbackHistory = () => {
-  const navigate = useNavigate();
-  const [feedbacks, setFeedbacks] = useState<FeedbackMessage[]>([]);
-  const [filteredFeedbacks, setFilteredFeedbacks] = useState<FeedbackMessage[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [userFilter, setUserFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
-    // Имитация загрузки данных
-    setIsLoading(true);
+    // Извлекаем пользовательские отзывы из localStorage
+    const storedFeedbacks = getAllFeedbacks();
     
-    // Получение сохраненных сообщений из локального хранилища
-    const savedFeedbacks = localStorage.getItem("userFeedbacks");
-    let parsedFeedbacks = savedFeedbacks ? JSON.parse(savedFeedbacks) : [];
+    // Объединяем предопределенные и пользовательские отзывы
+    const allFeedbacks = [...predefinedFeedbacks, ...storedFeedbacks];
     
-    // Объединяем сохраненные отзывы с предопределенными
-    const allFeedbacks = [...parsedFeedbacks, ...predefinedFeedbacks];
+    // Сортируем по дате (от новых к старым)
+    allFeedbacks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
-    // Сортируем отзывы по дате (от новых к старым)
-    const sortedFeedbacks = allFeedbacks.sort((a, b) => {
-      // Если есть timestamp, используем его для сортировки
-      if (a.timestamp && b.timestamp) {
-        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-      }
-      // Иначе используем id (который содержит временную метку)
-      return b.id.localeCompare(a.id);
-    });
-    
-    // Удаляем дубликаты по id
-    const uniqueFeedbacks = sortedFeedbacks.filter((feedback, index, self) =>
-      index === self.findIndex((f) => f.id === feedback.id)
-    );
-    
-    setFeedbacks(uniqueFeedbacks);
-    setFilteredFeedbacks(uniqueFeedbacks);
+    setFeedbacks(allFeedbacks);
     setIsLoading(false);
   }, []);
 
-  // Фильтрация отзывов по категории
-  useEffect(() => {
-    if (filter === "all") {
-      setFilteredFeedbacks(feedbacks);
-    } else {
-      setFilteredFeedbacks(feedbacks.filter(feedback => {
-        switch (filter) {
-          case "parent":
-            return feedback.category === "Родитель";
-          case "teacher":
-            return feedback.category === "Педагог";
-          case "admin":
-            return feedback.category === "Администратор";
-          case "other":
-            return !["Родитель", "Педагог", "Администратор"].includes(feedback.category);
-          default:
-            return true;
-        }
-      }));
+  // Функция для получения всех отзывов из localStorage
+  const getAllFeedbacks = (): Feedback[] => {
+    try {
+      const feedbacksString = localStorage.getItem("feedbacks");
+      if (feedbacksString) {
+        return JSON.parse(feedbacksString);
+      }
+    } catch (error) {
+      console.error("Ошибка при получении отзывов:", error);
     }
-  }, [filter, feedbacks]);
+    return [];
+  };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Ожидает ответа</Badge>;
-      case "answered":
-        return <Badge variant="outline" className="bg-green-100 text-green-800">Есть ответ</Badge>;
-      case "closed":
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800">Закрыто</Badge>;
-      default:
-        return <Badge variant="outline">Неизвестно</Badge>;
+  // Фильтрация отзывов по типу пользователя
+  const getFilteredFeedbacks = () => {
+    if (userFilter === "all") {
+      return feedbacks;
+    }
+    return feedbacks.filter(feedback => 
+      feedback.userType?.toLowerCase() === userFilter.toLowerCase() || 
+      feedback.role?.toLowerCase() === userFilter.toLowerCase()
+    );
+  };
+
+  // Получение количества каждого типа отзывов
+  const getCountsByType = () => {
+    const counts = {
+      all: feedbacks.length,
+      parent: feedbacks.filter(f => 
+        f.userType?.toLowerCase() === "родитель" || 
+        f.role?.toLowerCase() === "родитель"
+      ).length,
+      teacher: feedbacks.filter(f => 
+        f.userType?.toLowerCase() === "педагог" || 
+        f.role?.toLowerCase() === "педагог"
+      ).length,
+      other: feedbacks.filter(f => 
+        (f.userType?.toLowerCase() !== "родитель" && 
+         f.userType?.toLowerCase() !== "педагог" &&
+         f.role?.toLowerCase() !== "родитель" && 
+         f.role?.toLowerCase() !== "педагог" &&
+         (f.userType || f.role))
+      ).length,
+    };
+    return counts;
+  };
+
+  const counts = getCountsByType();
+  const filteredFeedbacks = getFilteredFeedbacks();
+  const averageRating = feedbacks.length > 0 
+    ? (feedbacks.reduce((sum, fb) => sum + fb.rating, 0) / feedbacks.length).toFixed(1) 
+    : "N/A";
+
+  // Функция для форматирования даты
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "dd MMMM yyyy, HH:mm", { locale: ru });
+    } catch (error) {
+      return "Дата неизвестна";
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "Родитель":
-        return <User className="h-3 w-3 mx-1" />;
-      case "Педагог":
-        return <School className="h-3 w-3 mx-1" />;
-      case "Администратор":
-        return <Settings className="h-3 w-3 mx-1" />;
-      default:
-        return <User className="h-3 w-3 mx-1" />;
-    }
-  };
-
-  // Расчет количества отзывов по категориям
-  const countByCategory = {
-    total: feedbacks.length,
-    parent: feedbacks.filter(f => f.category === "Родитель").length,
-    teacher: feedbacks.filter(f => f.category === "Педагог").length,
-    admin: feedbacks.filter(f => f.category === "Администратор").length,
-    other: feedbacks.filter(f => !["Родитель", "Педагог", "Администратор"].includes(f.category)).length
+  // Рендер звездочек для оценки
+  const renderStars = (rating: number) => {
+    const maxRating = 10;
+    return (
+      <div className="flex items-center space-x-1">
+        {Array.from({ length: maxRating }).map((_, i) => (
+          <Star
+            key={i}
+            className={`h-4 w-4 ${
+              i < rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
+            }`}
+          />
+        ))}
+        <span className="ml-1 text-sm font-medium">({rating}/10)</span>
+      </div>
+    );
   };
 
   return (
@@ -196,153 +188,123 @@ const FeedbackHistory = () => {
       <NavigationBar />
       
       <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold">История обращений</h1>
-              <p className="text-muted-foreground mt-1">
-                Все отправленные сообщения и ответы на них
-              </p>
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate("/feedback")}
-              className="flex items-center"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Вернуться к форме
-            </Button>
+        <h1 className="text-3xl font-bold mb-2">История отзывов</h1>
+        <p className="text-muted-foreground mb-8">
+          Все отзывы пользователей о системе коммуникации в школе
+        </p>
+        
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-          
-          {!isLoading && (
-            <div className="flex flex-col space-y-4 mb-8">
-              <div className="p-5 bg-muted/40 rounded-lg">
-                <h3 className="text-lg font-medium mb-3">Статистика обращений</h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
-                    <div className="text-2xl font-bold">{countByCategory.total}</div>
-                    <div className="text-xs text-muted-foreground">Всего</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
-                    <div className="text-2xl font-bold">{countByCategory.parent}</div>
-                    <div className="text-xs text-muted-foreground">От родителей</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
-                    <div className="text-2xl font-bold">{countByCategory.teacher}</div>
-                    <div className="text-xs text-muted-foreground">От педагогов</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
-                    <div className="text-2xl font-bold">{countByCategory.admin}</div>
-                    <div className="text-xs text-muted-foreground">От администрации</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-md shadow-sm text-center">
-                    <div className="text-2xl font-bold">{countByCategory.other}</div>
-                    <div className="text-xs text-muted-foreground">Другие</div>
-                  </div>
-                </div>
-              </div>
+        ) : (
+          <>
+            {/* Статистика */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-2xl">{feedbacks.length}</CardTitle>
+                  <CardDescription>Всего отзывов</CardDescription>
+                </CardHeader>
+              </Card>
               
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-muted/40 rounded-lg">
-                <div className="mb-4 sm:mb-0 flex items-center">
-                  <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <span className="mr-2 text-sm text-muted-foreground">Фильтр по роли:</span>
-                </div>
-                
-                <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Все категории" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все категории</SelectItem>
-                    <SelectItem value="parent">Родители</SelectItem>
-                    <SelectItem value="teacher">Педагоги</SelectItem>
-                    <SelectItem value="admin">Администраторы</SelectItem>
-                    <SelectItem value="other">Другие</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-2xl">{averageRating}</CardTitle>
+                  <CardDescription>Средняя оценка</CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-2xl">{counts.parent}</CardTitle>
+                  <CardDescription>Отзывов от родителей</CardDescription>
+                </CardHeader>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-2xl">{counts.teacher}</CardTitle>
+                  <CardDescription>Отзывов от учителей</CardDescription>
+                </CardHeader>
+              </Card>
             </div>
-          )}
-          
-          {isLoading ? (
-            <div className="py-20 text-center">
-              <p className="text-muted-foreground">Загрузка сообщений...</p>
-            </div>
-          ) : filteredFeedbacks.length > 0 ? (
-            <div className="space-y-4">
-              {filteredFeedbacks.map((feedback) => (
-                <Card 
-                  key={feedback.id} 
-                  className={`overflow-hidden ${feedback.isAdmin ? 'bg-amber-50' : ''}`}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="flex items-center text-lg">
-                          <MessageSquare className="h-4 w-4 mr-2" />
-                          {feedback.subject}
-                        </CardTitle>
-                        <CardDescription className="flex flex-wrap items-center mt-1 gap-1">
-                          <span className="flex items-center">
-                            <Clock className="h-3 w-3 mr-1" /> {feedback.date}
-                          </span>
-                          <span className="mx-1">•</span>
-                          <span className="flex items-center">
-                            {getCategoryIcon(feedback.category)} {feedback.category}
-                          </span>
-                          {feedback.senderName && (
-                            <>
-                              <span className="mx-1">•</span>
-                              <span className="flex items-center">
-                                <User className="h-3 w-3 mr-1" /> {feedback.senderName}
-                              </span>
-                            </>
+            
+            {/* Табы фильтрации */}
+            <Tabs defaultValue="all" onValueChange={setUserFilter} className="mb-6">
+              <TabsList className="mb-4">
+                <TabsTrigger value="all">Все отзывы ({counts.all})</TabsTrigger>
+                <TabsTrigger value="родитель">Родители ({counts.parent})</TabsTrigger>
+                <TabsTrigger value="педагог">Учителя ({counts.teacher})</TabsTrigger>
+                {counts.other > 0 && (
+                  <TabsTrigger value="other">Другие ({counts.other})</TabsTrigger>
+                )}
+              </TabsList>
+              
+              <TabsContent value="all" className="mt-0">
+                {filteredFeedbacks.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredFeedbacks.map(feedback => (
+                      <Card key={feedback.id} className="h-full">
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <CardTitle className="text-lg">{feedback.name}</CardTitle>
+                              <CardDescription className="mt-1">
+                                {formatDate(feedback.date)}
+                              </CardDescription>
+                            </div>
+                            <Badge variant={feedback.userType?.toLowerCase() === "родитель" || feedback.role?.toLowerCase() === "родитель" ? "default" : "secondary"}>
+                              {feedback.userType || feedback.role || "Неизвестно"}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div>
+                            <div className="font-medium text-sm mb-1">Оценка:</div>
+                            {renderStars(feedback.rating)}
+                          </div>
+                          
+                          {feedback.improveSuggestion && (
+                            <div>
+                              <div className="font-medium text-sm mb-1">Предложения по улучшению:</div>
+                              <p className="text-sm">{feedback.improveSuggestion}</p>
+                            </div>
                           )}
-                          {feedback.rating && (
-                            <>
-                              <span className="mx-1">•</span>
-                              <span className="flex items-center">
-                                <Star className="h-3 w-3 mr-1 text-amber-500" /> {feedback.rating}/10
-                              </span>
-                            </>
+                          
+                          {feedback.additionalComments && (
+                            <div>
+                              <div className="font-medium text-sm mb-1">Дополнительные комментарии:</div>
+                              <p className="text-sm">{feedback.additionalComments}</p>
+                            </div>
                           )}
-                        </CardDescription>
-                      </div>
-                      <div>
-                        {getStatusBadge(feedback.status)}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <Separator />
-                  <CardContent className={`pt-4 ${feedback.isAdmin ? 'bg-amber-50/50' : ''}`}>
-                    <p className="whitespace-pre-line">{feedback.message}</p>
-                    
-                    {feedback.status === "answered" && (
-                      <div className="mt-4 pt-4 border-t">
-                        <h4 className="font-medium mb-2">Ответ:</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Ответ от администрации будет отображаться здесь.
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="pt-6 pb-6 text-center">
-                <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground opacity-25 mb-4" />
-                <h3 className="text-lg font-medium mb-2">Нет отзывов, соответствующих фильтру</h3>
-                <p className="text-muted-foreground mb-4">
-                  Попробуйте изменить параметры фильтрации или отправить новый отзыв
-                </p>
-                <Button onClick={() => navigate("/feedback")}>
-                  Отправить обращение
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-lg text-muted-foreground">Отзывов не найдено</p>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="родитель" className="mt-0">
+                {/* Контент такой же, как и в основной вкладке, отображается автоматически благодаря фильтрации */}
+              </TabsContent>
+              
+              <TabsContent value="педагог" className="mt-0">
+                {/* Контент такой же, как и в основной вкладке, отображается автоматически благодаря фильтрации */}
+              </TabsContent>
+              
+              {counts.other > 0 && (
+                <TabsContent value="other" className="mt-0">
+                  {/* Контент такой же, как и в основной вкладке, отображается автоматически благодаря фильтрации */}
+                </TabsContent>
+              )}
+            </Tabs>
+          </>
+        )}
       </main>
       
       <Footer />

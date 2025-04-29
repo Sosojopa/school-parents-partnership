@@ -1,48 +1,42 @@
 
-import { CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle } from "lucide-react";
 
 interface RegistrationSuccessProps {
-  email: string;
+  email?: string;
 }
 
-const RegistrationSuccess = ({ email }: RegistrationSuccessProps) => {
+const RegistrationSuccess = ({ email = "вашу почту" }: RegistrationSuccessProps) => {
   return (
-    <div className="text-center space-y-6 p-8 border rounded-lg bg-card">
-      <div className="flex justify-center">
-        <div className="rounded-full bg-primary/10 p-3">
-          <CheckCircle size={48} className="text-primary" />
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="pb-2 text-center">
+        <div className="flex justify-center mb-4">
+          <CheckCircle className="h-12 w-12 text-green-500" />
         </div>
-      </div>
-      
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Регистрация успешно завершена</h2>
+        <CardTitle className="text-2xl font-bold">Регистрация успешна!</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 text-center">
         <p className="text-muted-foreground">
-          На адрес <span className="font-medium text-foreground">{email}</span> отправлено 
-          письмо с инструкциями для подтверждения вашего аккаунта.
-        </p>
-      </div>
-      
-      <div className="space-y-4 pt-4">
-        <p className="text-sm text-muted-foreground">
-          Не получили письмо? Проверьте папку "Спам" или 
-          <button className="text-primary hover:underline ml-1 font-medium">
-            отправьте письмо повторно
-          </button>
+          Благодарим за регистрацию в нашей системе. Ваш аккаунт успешно создан.
         </p>
         
-        <div className="space-y-2">
-          <Button asChild className="w-full">
-            <Link to="/login">Перейти на страницу входа</Link>
+        <p>
+          Мы отправили письмо с подтверждением на <span className="font-medium">{email}</span>.
+          Пожалуйста, проверьте вашу электронную почту и подтвердите регистрацию.
+        </p>
+        
+        <div className="pt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Button asChild>
+            <Link to="/login">Войти в систему</Link>
           </Button>
-          
-          <Button asChild variant="outline" className="w-full">
-            <Link to="/">Вернуться на главную</Link>
+          <Button variant="outline" asChild>
+            <Link to="/">На главную</Link>
           </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

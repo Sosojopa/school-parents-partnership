@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
 import RegistrationForm from "@/components/auth/RegistrationForm";
@@ -9,6 +9,20 @@ import RegistrationSuccess from "@/components/auth/RegistrationSuccess";
 const Register = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [email, setEmail] = useState("");
+  const location = useLocation();
+
+  useEffect(() => {
+    // Проверяем URL на наличие '/register/success' для отображения успешной регистрации
+    if (location.pathname === '/register/success') {
+      setIsRegistered(true);
+      // Пытаемся получить email из localStorage, если он был сохранен
+      const savedEmail = localStorage.getItem("userEmail");
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
 
   const handleRegistrationSuccess = (userEmail: string) => {
     setEmail(userEmail);

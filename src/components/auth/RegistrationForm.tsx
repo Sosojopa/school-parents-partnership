@@ -3,20 +3,24 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { registrationSchema, RegistrationFormValues } from "./FormSchema";
-import PasswordField from "./PasswordField";
 import TermsCheckbox from "./TermsCheckbox";
 import RoleSelector from "./RoleSelector";
+import { Eye, EyeOff } from "lucide-react";
 
-const RegistrationForm = () => {
+interface RegistrationFormProps {
+  onRegisterSuccess?: (email: string) => void;
+}
+
+const RegistrationForm = ({ onRegisterSuccess }: RegistrationFormProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(registrationSchema),
@@ -24,6 +28,7 @@ const RegistrationForm = () => {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
       role: "parent",
       acceptTerms: false,
     },
@@ -44,12 +49,21 @@ const RegistrationForm = () => {
       localStorage.setItem("userJoinedDate", new Date().toISOString());
       
       setIsLoading(false);
-      navigate("/register/success");
+      
+      if (onRegisterSuccess) {
+        onRegisterSuccess(values.email);
+      } else {
+        navigate("/register/success");
+      }
     }, 1500);
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
@@ -91,10 +105,74 @@ const RegistrationForm = () => {
               )}
             />
             
-            <PasswordField 
-              control={form.control} 
-              showPassword={showPassword} 
-              toggleVisibility={togglePasswordVisibility}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Пароль</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Введите пароль"
+                        autoComplete="new-password"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={togglePasswordVisibility}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Подтвердите пароль</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Повторите пароль"
+                        autoComplete="new-password"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={toggleConfirmPasswordVisibility}
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             
             <RoleSelector control={form.control} />

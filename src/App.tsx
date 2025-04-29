@@ -17,6 +17,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import FeedbackHistory from "./pages/FeedbackHistory";
+import RegistrationSuccess from "./components/auth/RegistrationSuccess";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/faq" element={<FAQ />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/register/success" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/feedback-history" element={<FeedbackHistory />} />
