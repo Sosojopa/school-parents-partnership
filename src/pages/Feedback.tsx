@@ -6,26 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Slider } from "@/components/ui/slider";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { History, MessageCircle } from "lucide-react";
 import NavigationBar from "@/components/ui/navigation-bar";
 import Footer from "@/components/layout/footer";
-import ContactInfo from "@/components/feedback/ContactInfo";
 import FeedbackHeader from "@/components/feedback/FeedbackHeader";
 import InfoSidebar from "@/components/feedback/InfoSidebar";
-import ContactFields from "@/components/feedback/ContactFields";
-import FeedbackTextarea from "@/components/feedback/FeedbackTextarea";
-import UserTypeRadioGroup from "@/components/feedback/UserTypeRadioGroup";
-import RatingSlider from "@/components/feedback/RatingSlider";
 import SuccessCard from "@/components/feedback/SuccessCard";
-import { Smile, MessageCircle, History } from "lucide-react";
+import FeedbackForm from "@/components/feedback/FeedbackForm";
 
 // Схема валидации для формы
 const formSchema = z.object({
@@ -153,34 +142,11 @@ const FeedbackPage = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Form {...form}>
-                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        {/* Выбор роли пользователя */}
-                        <UserTypeRadioGroup form={form} />
-
-                        {/* Поля контактной информации */}
-                        <ContactFields form={form} />
-
-                        {/* Оценка текущей коммуникации */}
-                        <RatingSlider form={form} />
-
-                        {/* Поле для ввода отзыва */}
-                        <FeedbackTextarea form={form} />
-
-                        <div className="flex items-center justify-between pt-4">
-                          <Button 
-                            type="button" 
-                            variant="outline"
-                            onClick={handleViewHistory}
-                            className="flex items-center"
-                          >
-                            <History className="mr-2 h-4 w-4" />
-                            История отзывов
-                          </Button>
-                          <Button type="submit">Отправить отзыв</Button>
-                        </div>
-                      </form>
-                    </Form>
+                    <FeedbackForm 
+                      form={form} 
+                      onSubmit={onSubmit} 
+                      handleViewHistory={handleViewHistory} 
+                    />
                   </CardContent>
                 </Card>
               </div>
