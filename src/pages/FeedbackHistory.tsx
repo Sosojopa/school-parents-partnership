@@ -282,27 +282,27 @@ const FeedbackHistory = () => {
                           {feedback.subject}
                         </CardTitle>
                         <CardDescription className="flex flex-wrap items-center mt-1 gap-1">
-                          <div className="flex items-center">
+                          <span className="flex items-center">
                             <Clock className="h-3 w-3 mr-1" /> {feedback.date}
-                          </div>
+                          </span>
                           <span className="mx-1">•</span>
-                          <div className="flex items-center">
+                          <span className="flex items-center">
                             {getCategoryIcon(feedback.category)} {feedback.category}
-                          </div>
+                          </span>
                           {feedback.senderName && (
                             <>
                               <span className="mx-1">•</span>
-                              <div className="flex items-center">
+                              <span className="flex items-center">
                                 <User className="h-3 w-3 mr-1" /> {feedback.senderName}
-                              </div>
+                              </span>
                             </>
                           )}
                           {feedback.rating && (
                             <>
                               <span className="mx-1">•</span>
-                              <div className="flex items-center">
+                              <span className="flex items-center">
                                 <Star className="h-3 w-3 mr-1 text-amber-500" /> {feedback.rating}/10
-                              </div>
+                              </span>
                             </>
                           )}
                         </CardDescription>
