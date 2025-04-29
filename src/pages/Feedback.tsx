@@ -16,7 +16,8 @@ import ContactFields from "@/components/feedback/ContactFields";
 import RatingSlider from "@/components/feedback/RatingSlider";
 import FeedbackTextarea from "@/components/feedback/FeedbackTextarea";
 import { Button } from "@/components/ui/button";
-import { History } from "lucide-react";
+import { History, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Схема валидации для формы обратной связи
 const formSchema = z.object({
@@ -99,6 +100,14 @@ const Feedback = () => {
       <main className="flex-grow container mx-auto px-4 py-8">
         <FeedbackHeader />
         
+        <Alert variant="destructive" className="my-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Внимание!</AlertTitle>
+          <AlertDescription>
+            В данный момент отправка новых отзывов ограничена. Приносим извинения за временные неудобства.
+          </AlertDescription>
+        </Alert>
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
           {/* Основной контент */}
           <div className="lg:col-span-2">
@@ -137,7 +146,13 @@ const Feedback = () => {
                           <History className="mr-2 h-4 w-4" />
                           История отзывов
                         </Button>
-                        <Button type="submit">Отправить отзыв</Button>
+                        <Button 
+                          type="submit" 
+                          disabled={true}
+                          title="Отправка отзывов временно ограничена"
+                        >
+                          Отправить отзыв
+                        </Button>
                       </div>
                     </form>
                   </Form>

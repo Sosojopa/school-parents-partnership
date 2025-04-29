@@ -14,29 +14,31 @@ const UserTypeRadioGroup: React.FC<UserTypeRadioGroupProps> = ({ form }) => {
       control={form.control}
       name="userType"
       render={({ field }) => (
-        <FormItem>
-          <FormLabel>Ваша роль</FormLabel>
+        <FormItem className="space-y-3">
+          <FormLabel>Вы являетесь</FormLabel>
           <FormControl>
             <RadioGroup
-              className="flex flex-col space-y-1 sm:flex-row sm:space-y-0 sm:space-x-4"
-              value={field.value}
               onValueChange={field.onChange}
+              defaultValue={field.value}
+              className="flex flex-col space-y-1"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Родитель" id="parent" />
-                <Label htmlFor="parent">Родитель</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Педагог" id="teacher" />
-                <Label htmlFor="teacher">Педагог</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Ученик" id="student" />
-                <Label htmlFor="student">Ученик</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Другое" id="other" />
-                <Label htmlFor="other">Другое</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-muted/50">
+                  <RadioGroupItem value="parent" id="parent" />
+                  <Label htmlFor="parent" className="flex-grow cursor-pointer">Родитель</Label>
+                </div>
+                <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-muted/50">
+                  <RadioGroupItem value="teacher" id="teacher" />
+                  <Label htmlFor="teacher" className="flex-grow cursor-pointer">Педагог</Label>
+                </div>
+                <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-muted/50">
+                  <RadioGroupItem value="admin" id="admin" />
+                  <Label htmlFor="admin" className="flex-grow cursor-pointer">Администратор</Label>
+                </div>
+                <div className="flex items-center space-x-2 rounded-md border p-3 cursor-pointer hover:bg-muted/50">
+                  <RadioGroupItem value="other" id="other" />
+                  <Label htmlFor="other" className="flex-grow cursor-pointer">Другое</Label>
+                </div>
               </div>
             </RadioGroup>
           </FormControl>
